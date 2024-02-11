@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# Script Name: ssh_agent_setup.sh
+# Author: Erica Sadun
+# Date: 10 February 2024
+# Description: Manage SSH agent and keys
+
+SCRIPT_NAME=$(basename "$0")
+
+# Usage message
+usage() {
+  echo "Usage: $SCRIPT_NAME [option]"
+  echo "Manage SSH agent and keys."
+  echo "Options:"
+  echo "  check: Check if SSH agent is running."
+  echo "  start: Start SSH agent."
+  echo "  stop:  Stop SSH agent."
+  echo "  add:   Add private key to SSH agent. May need authentication."
+  echo "  list:  List SSH keys."
+  echo "  info:  Display GitHub topic reference URL."
+  echo "  help:  This help message."
+}
+
+# Start SSH agent
+start_agent() {
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    echo "SSH agent is already running."
+  else
+    read -p "Confirm starting SSH agent (y/n): " choice
+    if [[ $choice == [Yy] ]]; then
+      echo "Starting SSH agent..."
+      eval `/usr/bin/ssh-agent -s`
+    else
+      echo "SSH agent not started."
+    fi
+  fi
+}
+
+# Stop SSH agent
+stop_agent() {
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    read -p "Confirm stopping SSH agent (y/n): " choice
+    if [[ $choice == [Yy] ]]; then
+      echo "Stopping SSH agent..."
+      pkill ssh-agent
+    else
+      echo "Skipping..."
+    fi
+  else
+    echo "SSH agent is not running."
+  fi
+}
+
+# Check agent
+check_agent() {
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    echo "SSH agent is running."
+  else
+    echo "SSH agent is not running."
+  fi
+}
+
+
+# Add private key to SSH agent
+add_key() {
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    echo "Option may require authentication with passkey."
+    read -p "Add private key to SSH agent? (y/n): " choice
+    if [[ $choice == [Yy] ]]; then
+      ssh-add ~/.ssh/id_rsa
+    else
+      echo "Skipping..."
+    fi
+  else
+    echo "SSH agent is not running."
+  fi
+}
+
+# Lists fingerprints of all identities currently 
+# represented by the agent.
+list_keys() {
+  ssh-add -l
+}
+
+# Handy GitHub References
+show_references() {
+  cat <<EOF
+For more information see this write-up at GitHub:
+https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent
+EOF
+}
+
+# Main function
+main() {
+  case "$1" in
+    check) check_agent ;;
+    start) start_agent ;;
+    stop) stop_agent ;;
+    add) add_key ;;
+    list) list_keys ;;
+    help) usage ;;
+    info) show_references ;;
+    *) usage; exit 0 ;;
+  esac
+}
+
+main "$@"
