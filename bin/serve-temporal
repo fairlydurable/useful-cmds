@@ -2,109 +2,116 @@
 
 # Script Name: serve-temporal
 # Author: Erica Sadun
-# Date: 8 February 2024
-# Description: 
-#   This script checks if the temporal server is already 
-#   running. If not, it starts the server.
-#   Optionally supply a custom port, or kill the running server,
-#   and/or open the web interface for the running or started
-#   server.
+# Date: 12 February 2024
+# Temporal server utility.
 
-# Global
+# Globals
 script_name=$(basename "$0")
-default_port=8080
+default_port=8233
+not_running="Temporal server is not currently running"
 
-# Usage message
-show_usage() {
-  echo "Usage: $script_name [port_number] [web]"
-  echo "           Run temporal server."
-  echo "       $script_name kill"
-  echo "           Terminate temporal server."
-  echo "       $script_name web"
-  echo "           Open server web interface."
-  echo "       $script_name help"
-  echo "           Show this message."
-  exit 0
+# Port Number
+port=$default_port
+
+# Function to display usage message
+function usage_message() {
+    echo "Usage: $script_name [--port PORT] COMMAND"
+    echo "Commands:"
+    echo "  start     - Start temporal server"
+    echo "  stop      - Stop temporal server"
+    echo "  info      - Check if temporal server is running"
+    echo "  web       - Open web UI of temporal server"
 }
 
-# Test if server is running
-is_running() {
-  if pgrep -x "temporal" > /dev/null; then
-    return 0
-  else
-    return 1
-  fi
+# Execute asynchronously. Send output to /dev/null.
+function execute_async() {
+    `which temporal` server start-dev --ui-port $port >/dev/null 2>&1 &
+    echo "Execution started on port $port"
 }
 
-# Fetch port from running process
-fetch_running_port() {
-  port=$(ps -eo args | grep "temporal.*--ui-port" | sed -n 's/.*--ui-port \([0-9]\{1,\}\).*/\1/p')
-}
-
-# Terminate running temporal process
-kill_temporal_process() {
-  if is_running; then
-    pkill -x "temporal"
-    echo "Server terminated."
-  else
-    echo "No temporal server process found. Exiting."
-    exit 1
-  fi
-}
-
-# Open web browser if Python/Python3 is installed
+# Open Web browser (requires Python)
 open_browser() {
-  if command -v python >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1; then
+  if command -v python >/dev/null 2>&1 || 
+     command -v python3 >/dev/null 2>&1; then
     python_command=$(command -v python3 || command -v python)
-    "$python_command" -m webbrowser "http://localhost:$port/"
+    echo "Opening web page with python"
+    "$python_command" -m webbrowser "http://localhost:$port/" > /dev/null
   else
     echo "Python is not installed. Unable to open the web browser."
   fi
 }
 
-# Process user input: port, kill, help, or none
-if [[ "$1" == *help ]]; then
-  show_usage
-elif [[ "$1" == *kill ]]; then
-  kill_temporal_process
-elif [[ "$1" == *web ]]; then
-  if is_running; then
-    fetch_running_port
-    open_browser
-  else
-    echo "No temporal server process found. Exiting."
-    exit 1
-  fi
-elif [ "$#" -eq 0 ]; then 
-  port="$default_port"  # Use default port when none is specified
-elif [ "$#" -eq 1 ]; then 
-  port="$1"             # Use the port provided by the user
-else
-  show_usage
+# Check for running process
+function check_process() {
+    pgrep temporal >/dev/null
+    return $?
+}
+
+# Check the current port number
+fetch_port() {
+    ps -eo args | grep "temporal.*--ui-port" | sed -n 's/.*--ui-port \([0-9]\{1,\}\).*/\1/p'
+}
+
+# Return either the current port or an unknown port
+function fetch_port_string() {
+    local ui_port=$(fetch_port)
+    if [ -n "$ui_port" ]; then
+        echo "port $ui_port"
+    else
+        echo "an unknown port (default: $default_port)"
+    fi
+}
+
+# Parse flags
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --port) port="$2"; shift ;;
+        *) break ;;
+    esac
+    shift
+done
+
+# Parse commands
+if [[ "$#" -eq 0 ]]; then
+    usage_message; exit 0
 fi
 
-# Validate any user-selected port number (or default port):
-if ! [[ "$port" =~ ^[0-9]+$ ]] || ! (( port >= 1024 && port <= 49151 )); then
-  echo "Invalid port number: $port"
-  exit 1
+# Parse commands
+if [[ "$#" -gt 1 ]]; then
+    echo "Error: Only one command expected"; usage_message; exit 1
 fi
 
-# Test whether the server is already running with '--ui-port'.
-# If so, report the port number and exit.
-if ps -eo args | grep -v grep | grep -q "temporal.*--ui-port"; then
-  fetch_running_port
-  echo "The server is already running on port $port"
-  echo "http://localhost:$port"
-  if [[ "$@" == *web* ]]; then
-    open_browser
-  fi
-  exit 0
-fi
+case "$1" in
+    start)
+        if check_process; then 
+            fetch_port
+            echo "Temporal is already running on $(fetch_port)"; exit 1; 
+        fi
+        execute_async ;; 
+    stop)
+        if check_process; then 
+            pkill temporal; echo "Ended temporal process."; exit 0; 
+        fi
+        echo "Error: $not_running"; exit 1 ;; 
+    info)
+        if check_process; then
+            echo "Temporal server is running on $(fetch_port_string)."
+        else
+            echo $not_running
+        fi ;;
+    web)
+        if check_process; then
+            uiport=$(fetch_port)
+            if [ -z "$ui_port" ]; then ui_port=$default_port; fi
+            open_browser "localhost:$ui_port"
+            exit 0
+        else
+            echo $not_running
+        fi ;;
+    *)
+        echo "Error: Unknown command $1"
+        usage_message
+        exit 1 ;;
+esac
 
-# If not running, proceed to start the command line application
-temporal server start-dev --ui-port "$port" > /dev/null 2>&1 &
-echo "Starting the temporal server on port $port"
-echo "http://localhost:$port"
-if [[ "$@" == *web* ]]; then
-  open_browser
-fi
+exit 0
