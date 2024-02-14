@@ -16,6 +16,17 @@ Options:
   help:  This help message.
 ```
 
+**rgrep** - Recursive search in the file type I set, like Markdown-only or JSON-only.
+
+```
+Usage: rgrep [-c] <file_extension> <search_pattern>
+    Perform a recursive 'grep' search from the working directory.
+    Restricts search to files matching your file extension.
+    For example, "rgrep json phrase" searches JSON files.
+    Use the -c flag to set case-sensitive search.
+    Phrases may include multiple words without quoting.
+```
+
 **serve-temporal** - Run the Temporal command-line server unobtrusively and pull up the webpage on-demand without remembering the UI port you used.
 
 ```
@@ -26,4 +37,3 @@ Commands:
   info      - Check if temporal server is running
   web       - Open web UI of temporal server
 ```
-

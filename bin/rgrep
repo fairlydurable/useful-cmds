@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# Script Name: rgrep
+# Author: Erica Sadun
+# Date: 14 February 2024
+# Recursive file-sensitive search.
+
+# Check for flags
+grep_flags="-iR"
+while getopts "cl" opt; do
+    case ${opt} in
+        c ) # Case-sensitive search
+            grep_flags="-R"
+            ;;
+        l ) # Output only file names
+            grep_flags="${grep_flags}l"
+            ;;
+        \? ) echo "Unrecognized flag: $OPTARG" 1>&2
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+script_name=$(basename "$0")
+
+# At least two arguments must be provided: extension and phrase
+if [ $# -lt 2 ]; then
+    echo "Usage: $(basename "$0") [-c] <file_extension> <search_pattern>"
+    echo "    Perform a recursive 'grep' search from the working directory."
+    echo "    Restricts search to files matching your file extension."
+    echo "    For example, \"$script_name json phrase\" searches JSON files."
+    echo "    Use the -c flag to set case-sensitive search."
+    echo "    Use the -l flag to output only file names."
+    echo "    Phrases may include multiple words without quoting."
+    exit 1
+fi
+
+
+# Construct and execute the 'grep' search
+file_extension=$1; shift
+grep $grep_flags --include '*'.$file_extension "$@"
