@@ -5,6 +5,12 @@
 # Date: 14 February 2024
 # Match a Docusaurus node to temporal.io URLs
 
+# Inside repo? Is the cwd the root?
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Error: '$(basename "$0")' must run from Docs repo" >&2
+  exit 1
+fi
+
 command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
@@ -20,6 +26,8 @@ fi
 if [ "$#" -ne 1 ]; then
     echo "Usage: $(basename "$0") <path_to_text_file>"
     echo "Match a Docusaurus node to temporal.io URLs"
+    echo "  Only run from the temporal.io Documents repo."
+    echo "  Dupe nodes w/ the same 'id' may produce extraneous URLs"
     exit 1
 fi
 
@@ -53,7 +61,7 @@ while IFS= read -r match; do
     if [ -n "$slugline" ]; then
        stage1=$(echo "$slugline" | sed 's/.*slug": "//')
        stage2=$(echo "$stage1" | sed 's/".$//')
-       results="$results\nhttps://docs.temporal.io/$stage2"
+       results="$results\nhttps://docs.temporal.io$stage2"
     fi
 done <<< "$matches"
 
