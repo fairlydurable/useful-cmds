@@ -37,3 +37,17 @@ Commands:
   info      - Check if temporal server is running
   web       - Open web UI of temporal server
 ```
+
+**cites** - Find URLs that might cite a docs-src sourcefile node. **Requires** `rgrep`.
+
+```
+Usage: cites <path_to_text_file>
+Match a Docusaurus node to temporal.io URLs
+```
+
+For example:
+
+```
+concepts% cites what-is-signal-with-start.md
+https://docs.temporal.io/workflows
+```

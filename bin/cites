@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# Script Name: cites
+# Author: Erica Sadun
+# Date: 14 February 2024
+# Match a Docusaurus node to temporal.io URLs
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Check if rgrep command exists
+if ! command_exists rgrep; then
+    echo "Error: rgrep command not found. It must be installed and"
+    echo "       available in your PATH for this utility."
+    exit 1
+fi
+
+# Check argument count
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $(basename "$0") <path_to_text_file>"
+    echo "Match a Docusaurus node to temporal.io URLs"
+    exit 1
+fi
+
+# Argument path
+file_path=$1
+if [ ! -f "$file_path" ]; then
+    echo "File $file_path not found. Bailing."
+    exit 1
+fi
+
+# Extract 'id' field from path file
+id=$(sed -n '/^---$/,/^---$/p' "$file_path" | grep "^id:" | sed 's/id:\s*//')
+if [ -z "$id" ]; then
+    echo "id info not found in this file's YAML front matter."
+    exit 1
+fi
+
+# Search id value from the repo root in JSON files
+pushd `git rev-parse --show-toplevel` > /dev/null
+matches=$(rgrep -l json $id)
+if [ -z "$matches" ]; then
+    echo "No JSON files found matching $id."
+    popd >/dev/null || exit
+fi
+
+# Iterate through each match
+results=""
+while IFS= read -r match; do
+    # Fetch and process slug line
+    slugline=$(grep slug "$match")
+    if [ -n "$slugline" ]; then
+       stage1=$(echo "$slugline" | sed 's/.*slug": "//')
+       stage2=$(echo "$stage1" | sed 's/".$//')
+       results="$results\nhttps://docs.temporal.io/$stage2"
+    fi
+done <<< "$matches"
+
+# Print the sorted and unique URLs from the results
+echo -e "$results" | grep -o 'https://docs.temporal.io/.*' | sort | uniq
