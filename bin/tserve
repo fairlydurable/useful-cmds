@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script Name: serve-temporal
+# Script Name: tserve
 # Author: Erica Sadun
 # Date: 12 February 2024
 # Temporal server utility.

@@ -29,10 +29,10 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
     Use single quotes with wildcard items to avoid expansion.
 ```
 
-**serve-temporal** - Run the Temporal command-line server unobtrusively and pull up the webpage on-demand without remembering the UI port you used.
+**tserve** - Run the Temporal command-line server unobtrusively and pull up the webpage on-demand without remembering the UI port you used.
 
 ```
-Usage: serve-temporal [--port PORT] COMMAND
+Usage: tserve [--port PORT] COMMAND
 Commands:
   start     - Start temporal server
   stop      - Stop temporal server
