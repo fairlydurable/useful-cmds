@@ -1,6 +1,39 @@
 # Useful Command Line Things 
 
 ## Overview
+
+### Temporal Server Utilities
+
+**tserve** - Run the Temporal command-line server unobtrusively and pull up the webpage on-demand without remembering the UI port you used.
+
+```
+Usage: tserve [--port PORT] COMMAND
+Commands:
+  start     - Start temporal server
+  stop      - Stop temporal server
+  info      - Check if temporal server is running
+  web       - Open web UI of temporal server
+```
+
+**tflow** - Start, stop, list or inspect a Temporal tutorial Workflow. The Workflow JSON data defaults to _"Hello World"_, as a JSON string. Use `start ip` to send an IP-address string instead. The Task-Queue used is `io.temporal.TutorialTaskQueue`; the Workflow type is `TutorialWorkflow`.
+
+```
+Usage: tflow <command> [json|id-number]
+  start [input]   Start new Workflow. Optional JSON defaults to
+                  "Hello World". Bonus: start ip | start dad.
+  cancel <id>     Cancel Workflow.
+  describe <id>   Describe Workflow.
+  show <id>       Show Workflow details.
+  result <id>     Show completed Workflow output.
+  terminate <id>  Terminate a Workflow.
+  killall         Terminate all active Workflows.
+  running         List active workflows.
+  list            List up to 10 workflows from this server session.
+  signal <id>     Not yet implemented.
+```
+
+### Authentication Support for GitHub
+
 **sshgo** - I can never remember exactly how to run the ssh agent. This remembers it for me.
 
 ```
@@ -16,6 +49,8 @@ Options:
   help:  This help message.
 ```
 
+### Documentation Repository Utilities
+
 **rgrep** - Recursive search in the file type I set, like Markdown-only or JSON-only.
 
 ```
@@ -27,17 +62,6 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
     Use the -l flag to output only file names.
     Phrases may include multiple words without quoting.
     Use single quotes with wildcard items to avoid expansion.
-```
-
-**tserve** - Run the Temporal command-line server unobtrusively and pull up the webpage on-demand without remembering the UI port you used.
-
-```
-Usage: tserve [--port PORT] COMMAND
-Commands:
-  start     - Start temporal server
-  stop      - Stop temporal server
-  info      - Check if temporal server is running
-  web       - Open web UI of temporal server
 ```
 
 **cites** - Find URLs that might cite a docs-src sourcefile node. **Requires** `rgrep`.

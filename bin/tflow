@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# Usage
+function usage {
+    # Undocumented runid - requires jq
+
+    echo "Usage: $(basename "$0") <command> [json|id-number]"
+    echo "  start [input]   Start new Workflow. Optional JSON defaults to"
+    echo "                  \"Hello World\". Bonus: start ip | start dad."
+    echo "  cancel <id>     Cancel Workflow."
+    echo "  describe <id>   Describe Workflow."
+    echo "  show <id>       Show Workflow details."
+    echo "  result <id>     Show completed Workflow output."
+    echo "  terminate <id>  Terminate a Workflow."
+    echo "  latest          The most recent Workflow ID."
+    echo "  killall         Terminate all active Workflows."
+    echo "  running         List active workflows."
+    echo "  list            List up to 10 workflows from this server session."
+    echo "  signal <id>     Not yet implemented."
+    exit 1
+}
+
+# Start a Workflow
+function start_workflow {
+    local input="${1:-\"Hello World\"}"
+    local epoch=$(date +%s)
+    local unique_id="io.temporal.tutorial.${epoch}"
+
+    if [ "$input" == "ip" ]; then
+        input="\"$(curl -s4 ifconfig.co)\""
+    elif [ "$input" == "dad" ]; then
+        input="\"$(curl -s https://icanhazdadjoke.com/ | \
+        sed 's/\\/\\\\/g; s/"/\\"/g; s/$/\\n/' | tr -d '\n')\""
+    fi
+
+    echo "Starting workflow with ID: ${unique_id}"
+    temporal workflow start \
+        --workflow-id "${unique_id}" \
+        --type TutorialWorkflow \
+        --task-queue io.temporal.TutorialTaskQueue \
+        --input "${input}"
+}
+
+# Requires one command, otherwise show Usage.
+if [ $# -lt 1 ]; then usage; fi
+
+# Execute the selected command
+case "$1" in
+    start) start_workflow "${@:2}" ;;
+
+    cancel)
+        if [ $# -ne 2 ]; then usage; fi
+        temporal workflow cancel --workflow-id "io.temporal.tutorial.$2"
+        ;;
+
+    describe)
+        if [ $# -ne 2 ]; then usage; fi 
+        temporal workflow describe --workflow-id "io.temporal.tutorial.$2" 
+        ;;
+
+    latest)
+        echo "$(temporal workflow list --limit 1 --color never --fields Execution.WorkflowId -o card | sed 's/.*Execution.WorkflowId.*io/io/')"
+	;;
+
+    runid)
+        if [ $# -ne 2 ]; then usage; fi 
+        echo $(temporal workflow describe --workflow-id "io.temporal.tutorial.$2" | jq .workflowExecutionInfo.execution.runId | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g") | awk '{gsub(/\"/, "")}1'
+        ;;
+
+    result)
+        echo "$(temporal workflow show --workflow-id `tflow latest` | grep Output)"
+        ;;
+
+    show) 
+        if [ $# -ne 2 ]; then usage; fi
+        temporal workflow show --workflow-id "io.temporal.tutorial.$2"
+        ;;
+
+    running)
+        if [[ -z $(temporal workflow list \
+              --query="ExecutionStatus = 'Running'") ]]; then
+            echo "No active Workflows were found."
+        else
+            temporal workflow list --query="ExecutionStatus = 'Running'"
+        fi
+        ;;
+
+    signal)
+        echo "Signal functionality not yet implemented." ;; 
+
+    show)
+        if [ $# -ne 2 ]; then usage; fi
+        temporal workflow show --workflow-id "io.temporal.tutorial.$2"
+        ;;
+
+    killall)
+        temporal workflow list --query="ExecutionStatus = 'Running'" | \
+        awk '{ gsub(/[^0-9]/, " "); for(i=1; i<=NF; i++) if(length($i) >= 8) print $i }' | \
+        xargs -I {} bash -c ' echo "Terminating workflow io.temporal.tutorial.{}" && temporal workflow terminate --workflow-id "io.temporal.tutorial.{}"' 
+        ;;
+
+    list)
+       temporal workflow list --limit 10 ;; 
+
+    terminate)
+        if [ $# -ne 2 ]; then usage; fi
+        temporal workflow terminate --workflow-id "io.temporal.tutorial.$2" 
+        ;;
+
+    *) usage ;;
+
+esac
+
+exit 0
