@@ -2,22 +2,38 @@
 
 # Usage
 function usage {
-    # Undocumented runid - requires jq
-
     echo "Usage: $(basename "$0") <command> [json|id-number]"
-    echo "  start [input]   Start new Workflow. Optional JSON defaults to"
-    echo "                  \"Hello World\". Bonus: start ip | start dad."
+    echo "  start [input]   Start new Workflow."
     echo "  cancel <id>     Cancel Workflow."
+    echo "  terminate <id>  Terminate a Workflow."
     echo "  describe <id>   Describe Workflow."
     echo "  show <id>       Show Workflow details."
-    echo "  result <id>     Show completed Workflow output."
-    echo "  terminate <id>  Terminate a Workflow."
-    echo "  latest          The most recent Workflow ID."
-    echo "  killall         Terminate all active Workflows."
-    echo "  running         List active workflows."
     echo "  list            List up to 10 workflows from this server session."
-    echo "  signal <id>     Not yet implemented."
+    echo "  running         List active workflows."
+    echo "  killall         Terminate all active Workflows."
     exit 1
+}
+
+function usage-long {
+    echo "Usage: $(basename "$0") <command> [json|id-number]"
+    echo "  usage-long      This message."
+    echo "  latest          Show most recent Workflow."
+    echo "  result          Show result of most recent Workflow."
+    echo "  runid <id>      Show Workflow run-id."
+    echo "  start [input]   Start new Workflow."
+    echo "  cancel <id>     Cancel Workflow."
+    echo "  cancelit        Cancel most recent Workflow."
+    echo "  terminate <id>  Terminate a Workflow."
+    echo "  describe <id>   Describe Workflow."
+    echo "  describeit      Describe most recent Workflow."
+    echo "  show <id>       Show Workflow details."
+    echo "  showit          Show details for most recent Workflow."
+    echo "  showlong        Show in-depth details for most recent Workflow."
+    echo "  list            List up to 10 recent Workflows."
+    echo "  running         List active workflows."
+    echo "  killall         Terminate all active Workflows."
+    echo "  signal          Not yet implemented."
+    exit 0
 }
 
 # Start a Workflow
@@ -48,15 +64,23 @@ if [ $# -lt 1 ]; then usage; fi
 case "$1" in
     start) start_workflow "${@:2}" ;;
 
+    usage-long) usage-long;;
+
     cancel)
         if [ $# -ne 2 ]; then usage; fi
         temporal workflow cancel --workflow-id "io.temporal.tutorial.$2"
         ;;
 
+    cancelit)
+        temporal workflow cancel --workflow-id `tflow latest` ;;
+
     describe)
         if [ $# -ne 2 ]; then usage; fi 
         temporal workflow describe --workflow-id "io.temporal.tutorial.$2" 
         ;;
+
+    describeit)
+        temporal workflow describe --workflow-id `tflow latest` ;;
 
     latest)
         echo "$(temporal workflow list --limit 1 --color never --fields Execution.WorkflowId -o card | sed 's/.*Execution.WorkflowId.*io/io/')"
@@ -75,6 +99,12 @@ case "$1" in
         if [ $# -ne 2 ]; then usage; fi
         temporal workflow show --workflow-id "io.temporal.tutorial.$2"
         ;;
+
+    showit)
+        temporal workflow show --workflow-id `tflow latest` ;;
+
+    showlong)
+        temporal workflow show --fields long  --color no --workflow-id `tflow latest` ;;
 
     running)
         if [[ -z $(temporal workflow list \

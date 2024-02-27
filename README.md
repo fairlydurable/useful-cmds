@@ -32,6 +32,30 @@ Usage: tflow <command> [json|id-number]
   signal <id>     Not yet implemented.
 ```
 
+Other options:
+
+```
+$ tflow usage-long
+Usage: tflow <command> [json|id-number]
+  usage-long      This message.
+  latest          Show most recent Workflow.
+  result          Show result of most recent Workflow.
+  runid <id>      Show Workflow run-id.
+  start [input]   Start new Workflow.
+  cancel <id>     Cancel Workflow.
+  cancelit        Cancel most recent Workflow.
+  terminate <id>  Terminate a Workflow.
+  describe <id>   Describe Workflow.
+  describeit      Describe most recent Workflow.
+  show <id>       Show Workflow details.
+  showit          Show details for most recent Workflow.
+  showlong        Show in-depth details for most recent Workflow.
+  list            List up to 10 recent Workflows.
+  running         List active workflows.
+  killall         Terminate all active Workflows.
+  signal          Not yet implemented.
+```
+
 ### Authentication Support for GitHub
 
 **sshgo** - I can never remember exactly how to run the ssh agent. This remembers it for me.
