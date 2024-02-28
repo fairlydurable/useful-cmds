@@ -15,7 +15,7 @@ Commands:
   web       Open web UI of temporal server
 ```
 
-**tflow** - Start, stop, list or inspect a Temporal tutorial Workflow. The Workflow JSON data defaults to _"Hello World"_, as a JSON string. The Task-Queue used is `io.temporal.TutorialTaskQueue`; the Workflow type is `TutorialWorkflow`. I may change this at some point.
+**tflow** - Start, stop, list or inspect a Temporal tutorial Workflow. The Workflow JSON data defaults to _"Hello World"_, as a JSON string. The Task-Queue used is `TutorialTaskQueue`; the Workflow type is `TutorialWorkflow`. I may change this at some point.
 
 ```
 $ tflow
