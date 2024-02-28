@@ -1,0 +1,61 @@
+#!/bin/bash
+
+script_name=$(basename "$0")
+
+# Usage
+usage() {
+    echo "Usage: $script_name workflow-type command"
+    echo "           [--input INPUT] [--port PORT] [--namespace NAMESPACE]"
+    echo "  start    Start new Workflow."
+    exit 1
+}
+
+# Start Workflow
+
+start_workflow() {
+    temporal workflow $command \
+        --task-queue $task_queue \
+        --type $workflow_type \
+        --workflow-id $workflow_id \
+        --namespace $namespace \
+        --address $address \
+        --input $input \
+        --tls-cert-path "$HOME/.ssh/tcloud.pem" \
+        --tls-key-path "$HOME/.ssh/tcloud.key"
+}
+
+# Parse flags
+
+input='null'
+port="7233"
+namespace="docs-assembly.a2dd6"
+
+if [ "$#" -lt 2 ]; then
+    usage
+fi
+
+workflow_type="$1"
+command="$2"
+shift 2
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --input) input="\"$2\""; shift ;;
+        --port) port="$2"; shift ;;
+        --namespace) namespace="$2"; shift ;;
+        *) break ;;
+    esac
+    shift
+done
+
+task_queue="$workflow_type-queue"
+address="$namespace.tmprl.cloud:$port"
+workflow_id="$workflow_type-$(date +%s)"
+
+case "$command" in
+    start) start_workflow "${@:2}" ;;
+
+    *) usage ;;
+esac
+
+exit 0

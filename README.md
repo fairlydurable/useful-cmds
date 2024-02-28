@@ -120,3 +120,11 @@ https://docs.temporal.io/retry-policies
 https://docs.temporal.io/visibility
 https://docs.temporal.io/workers
 ```
+
+### Generally Useful
+
+You may have to give things permission to open other things through System Preferences.
+
+**pdfman** - Opens the output of `man` as a formatted PDF page in Preview. This version is Sonoma-and-later only.
+
+**snap** - Initiate dragged screen capture to PDF. Results left on the Desktop. Useful for screen-sharing sessions which put grabs onto the host computer instead of the shared one.
