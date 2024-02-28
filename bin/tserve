@@ -17,10 +17,10 @@ port=$default_port
 function usage_message() {
     echo "Usage: $script_name [--port PORT] COMMAND"
     echo "Commands:"
-    echo "  start     - Start temporal server"
-    echo "  stop      - Stop temporal server"
-    echo "  info      - Check if temporal server is running"
-    echo "  web       - Open web UI of temporal server"
+    echo "  start     Start temporal server"
+    echo "  stop      Stop temporal server"
+    echo "  info      Check if temporal server is running"
+    echo "  web       Open web UI of temporal server"
 }
 
 # Execute asynchronously. Send output to /dev/null.

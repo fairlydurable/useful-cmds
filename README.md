@@ -9,27 +9,23 @@
 ```
 Usage: tserve [--port PORT] COMMAND
 Commands:
-  start     - Start temporal server
-  stop      - Stop temporal server
-  info      - Check if temporal server is running
-  web       - Open web UI of temporal server
+  start     Start temporal server
+  stop      Stop temporal server
+  info      Check if temporal server is running
+  web       Open web UI of temporal server
 ```
 
-**tflow** - Start, stop, list or inspect a Temporal tutorial Workflow. The Workflow JSON data defaults to _"Hello World"_, as a JSON string. Use `start ip` to send an IP-address string instead. The Task-Queue used is `io.temporal.TutorialTaskQueue`; the Workflow type is `TutorialWorkflow`.
+**tflow** - Start, stop, list or inspect a Temporal tutorial Workflow. The Workflow JSON data defaults to _"Hello World"_, as a JSON string. The Task-Queue used is `io.temporal.TutorialTaskQueue`; the Workflow type is `TutorialWorkflow`. I may change this at some point.
 
 ```
+$ tflow
 Usage: tflow <command> [json|id-number]
-  start [input]   Start new Workflow. Optional JSON defaults to
-                  "Hello World". Bonus: start ip | start dad.
-  cancel <id>     Cancel Workflow.
-  describe <id>   Describe Workflow.
-  show <id>       Show Workflow details.
-  result <id>     Show completed Workflow output.
+  start [input]   Start new Workflow.
   terminate <id>  Terminate a Workflow.
-  killall         Terminate all active Workflows.
   running         List active workflows.
   list            List up to 10 workflows from this server session.
-  signal <id>     Not yet implemented.
+  killall         Terminate all active Workflows.
+  usage-long      More usage options.
 ```
 
 Other options:

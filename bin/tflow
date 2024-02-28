@@ -4,13 +4,11 @@
 function usage {
     echo "Usage: $(basename "$0") <command> [json|id-number]"
     echo "  start [input]   Start new Workflow."
-    echo "  cancel <id>     Cancel Workflow."
     echo "  terminate <id>  Terminate a Workflow."
-    echo "  describe <id>   Describe Workflow."
-    echo "  show <id>       Show Workflow details."
-    echo "  list            List up to 10 workflows from this server session."
     echo "  running         List active workflows."
+    echo "  list            List up to 10 workflows from this server session."
     echo "  killall         Terminate all active Workflows."
+    echo "  usage-long      More usage options."
     exit 1
 }
 
