@@ -9,6 +9,8 @@ function usage {
     echo "  list            List up to 10 workflows from this server session."
     echo "  killall         Terminate all active Workflows."
     echo "  usage-long      More usage options."
+    echo ""
+    echo "Description: Create and manage workflows on the Temporal Development Server."
     exit 1
 }
 
@@ -38,7 +40,7 @@ function usage-long {
 function start_workflow {
     local input="${1:-\"Hello World\"}"
     local epoch=$(date +%s)
-    local unique_id="tutorial.${epoch}"
+    local unique_id="TutorialWorkflow.${epoch}"
 
     if [ "$input" == "ip" ]; then
         input="\"$(curl -s4 ifconfig.co)\""
@@ -51,7 +53,7 @@ function start_workflow {
     temporal workflow start \
         --workflow-id "${unique_id}" \
         --type TutorialWorkflow \
-        --task-queue TutorialTaskQueue \
+        --task-queue TutorialWorkflow-queue \
         --input "${input}"
 }
 
@@ -66,7 +68,7 @@ case "$1" in
 
     cancel)
         if [ $# -ne 2 ]; then usage; fi
-        temporal workflow cancel --workflow-id "tutorial.$2"
+        temporal workflow cancel --workflow-id "TutorialWorkflow-queue.$2"
         ;;
 
     cancelit)
@@ -74,7 +76,7 @@ case "$1" in
 
     describe)
         if [ $# -ne 2 ]; then usage; fi 
-        temporal workflow describe --workflow-id "tutorial.$2" 
+        temporal workflow describe --workflow-id "TutorialWorkflow.$2" 
         ;;
 
     describeit)
@@ -86,7 +88,7 @@ case "$1" in
 
     runid)
         if [ $# -ne 2 ]; then usage; fi 
-        echo $(temporal workflow describe --workflow-id "tutorial.$2" | jq .workflowExecutionInfo.execution.runId | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g") | awk '{gsub(/\"/, "")}1'
+        echo $(temporal workflow describe --workflow-id "TutorialWorkflow.$2" | jq .workflowExecutionInfo.execution.runId | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g") | awk '{gsub(/\"/, "")}1'
         ;;
 
     result)
@@ -95,7 +97,7 @@ case "$1" in
 
     show) 
         if [ $# -ne 2 ]; then usage; fi
-        temporal workflow show --workflow-id "tutorial.$2"
+        temporal workflow show --workflow-id "TutorialWorkflow.$2"
         ;;
 
     showit)
@@ -118,13 +120,13 @@ case "$1" in
 
     show)
         if [ $# -ne 2 ]; then usage; fi
-        temporal workflow show --workflow-id "tutorial.$2"
+        temporal workflow show --workflow-id "TutorialWorkflow.$2"
         ;;
 
     killall)
         temporal workflow list --query="ExecutionStatus = 'Running'" | \
         awk '{ gsub(/[^0-9]/, " "); for(i=1; i<=NF; i++) if(length($i) >= 8) print $i }' | \
-        xargs -I {} bash -c ' echo "Terminating workflow tutorial.{}" && temporal workflow terminate --workflow-id "tutorial.{}"' 
+        xargs -I {} bash -c ' echo "Terminating workflow TutorialWorkflow.{}" && temporal workflow terminate --workflow-id "TutorialWorkflow.{}"' 
         ;;
 
     list)
@@ -132,7 +134,7 @@ case "$1" in
 
     terminate)
         if [ $# -ne 2 ]; then usage; fi
-        temporal workflow terminate --workflow-id "tutorial.$2" 
+        temporal workflow terminate --workflow-id "TutorialWorkflow.$2" 
         ;;
 
     *) usage ;;

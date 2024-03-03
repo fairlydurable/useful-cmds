@@ -1,3 +1,0 @@
-#! /bin/bash
-/usr/bin/mandoc -T pdf "$(/usr/bin/man -w $@)" | open -fa Preview
-/usr/bin/osascript -e 'tell application "Preview" to activate' -e 'tell application "System Events" to keystroke "2" using {command down}'

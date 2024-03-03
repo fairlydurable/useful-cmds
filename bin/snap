@@ -1,5 +1,42 @@
 #!/bin/bash
+
+# Author: Erica Sadun
+# Date: 3 March 2024
+# Description: Use "screencapture" for use with macro invocation
+
+usage() {
+  echo "Usage: $(basename "$0") [options]"
+  echo "Options:"
+  echo "  -d, --drag    : Capture using drag-to-select"
+  echo "  -s, --select  : Capture using interactive selection mode"
+  echo "  -v, --video   : Capture video"
+  echo "Additional Information:"
+  echo "  - Space bar toggles between mouse and window capture"
+  echo "  - Tap any key to finish video capture"
+}
+
 now=$(date +'%m-%d-%y@%H-%M-%S')
 filename="$HOME/Desktop/snapshot-$now.png"
-/usr/sbin/screencapture -iUt png $filename
+delay=""
+ui=""
 
+case "$1" in
+    -d | --drag)
+        mode="-it png"
+        shift
+        ;;
+    -s | --select)
+        mode="-iUt png"
+        shift
+        ;;
+    -v | --video)
+        mode="-J video"
+        filename="$HOME/Desktop/snapshot-$now.mp4"
+        shift
+        ;;
+    *)
+        usage
+        ;;
+esac
+
+/usr/sbin/screencapture $delay $mode "$filename"

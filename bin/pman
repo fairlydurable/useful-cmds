@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Author: Erica Sadun
+# Date: 3 March 2024
+# Convert a man page to PDF and open it in Preview
+
+usage() {
+    echo "Usage: $(basename "$0") [-k] keyword"
+    echo "Options:"
+    echo "   -k      Run apropos instead."
+    echo ""
+    echo "Description: Open a man page in Preview as a PDF file"
+}
+
+# Check for keyword
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+# Handle apropos
+if [ "$1" == "-k" ]; then
+    shift
+    man -k "$@" | open -f
+    exit 0
+fi
+
+# Check man-page
+man_page="$(/usr/bin/man -w "$@")"
+if [ -z "$man_page" ]; then
+    echo "Error: Man page '$@' not found"
+    exit 1
+fi
+
+# Convert and open in Preview
+/usr/bin/mandoc -T pdf "$man_page" | open -fa Preview
+
+/usr/bin/osascript -e 'tell application "Preview" to activate' \
+    -e 'tell application "System Events" to keystroke "2" using {command down}'

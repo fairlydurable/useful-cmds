@@ -7,6 +7,7 @@
 **tserve** - Run the Temporal command-line server unobtrusively and pull up the webpage on-demand without remembering the UI port you used.
 
 ```
+$ tserve
 Usage: tserve [--port PORT] COMMAND
 Commands:
   start     Start temporal server
@@ -26,6 +27,8 @@ Usage: tflow <command> [json|id-number]
   list            List up to 10 workflows from this server session.
   killall         Terminate all active Workflows.
   usage-long      More usage options.
+
+Description: Create and manage workflows on the Temporal Development Server.
 ```
 
 Other options:
@@ -52,11 +55,24 @@ Usage: tflow <command> [json|id-number]
   signal          Not yet implemented.
 ```
 
+**clflow** - Start a new Temporal Cloud workflow. In development.
+
+```
+$ clflow
+Usage: clflow workflow-type command
+           [--input INPUT] [--port PORT] [--namespace NAMESPACE]
+  start    Start new Workflow.
+Description: Create and manage workflows on the Temporal Cloud Server.
+The Workflow ID, Task Queue, and Workflow Type are all set to match the
+Workflow definition you use. (Tutorials: TutorialWorkflow)
+```
+
 ### Authentication Support for GitHub
 
 **sshgo** - I can never remember exactly how to run the ssh agent. This remembers it for me.
 
 ```
+$ sshgo
 Usage: sshgo [option]
 Manage SSH agent and keys.
 Options:
@@ -87,6 +103,7 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
 **cites** - Find URLs that might cite a docs-src sourcefile node. **Requires** `rgrep`.
 
 ```
+$ cites
 Usage: cites <path_to_text_file>
 Match a Docusaurus node to temporal.io URLs
   Only run from the temporal.io Documents repo.
@@ -125,6 +142,25 @@ https://docs.temporal.io/workers
 
 You may have to give things permission to open other things through System Preferences.
 
-**pdfman** - Opens the output of `man` as a formatted PDF page in Preview. This version is Sonoma-and-later only.
+**pman** - Opens the output of `man` as a formatted PDF document in Preview. This version is Sonoma-and-later only.
+
+```
+$ pman
+Usage: pman [-k] keyword
+Options:
+   -k      Run apropos instead.
+
+Description: Open a man page in Preview as a PDF file
+```
 
 **snap** - Initiate dragged screen capture to PDF. Results left on the Desktop. Useful for screen-sharing sessions which put grabs onto the host computer instead of the shared one.
+
+```
+$ snap
+Usage: snap [options]
+  -d, --drag: Capture using drag-to-select
+  -s, --select: Capture using interactive selection mode
+  -v, --video: Capture video
+ Space bar toggles between mouse and window capture
+ Tap any key to finish video capture
+```

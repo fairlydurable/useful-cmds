@@ -7,6 +7,9 @@ usage() {
     echo "Usage: $script_name workflow-type command"
     echo "           [--input INPUT] [--port PORT] [--namespace NAMESPACE]"
     echo "  start    Start new Workflow."
+    echo "Description: Create and manage workflows on the Temporal Cloud Server."
+    echo "The Workflow ID, Task Queue, and Workflow Type are all set to match the"
+    echo "Workflow definition you use. (Tutorials: TutorialWorkflow)"
     exit 1
 }
 
