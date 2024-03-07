@@ -6,7 +6,9 @@ script_name=$(basename "$0")
 usage() {
     echo "Usage: $script_name workflow-type command"
     echo "           [--input INPUT] [--port PORT] [--namespace NAMESPACE]"
-    echo "  start    Start new Workflow."
+    echo "  start    Start new Workflow"     echo "  list     List most recent Workflows (up to 10)"
+    echo "  latest   Latest workflow ID"
+    echo "  results  Latest workflow results"
     echo "Description: Create and manage workflows on the Temporal Cloud Server."
     echo "The Workflow ID, Task Queue, and Workflow Type are all set to match the"
     echo "Workflow definition you use. (Tutorials: TutorialWorkflow)"
@@ -15,7 +17,16 @@ usage() {
 
 # Start Workflow
 
-start_workflow() {
+run_command_basic() {
+    temporal workflow $command \
+        --namespace $namespace \
+        --address $address \
+        --tls-cert-path "$HOME/.ssh/tcloud.pem" \
+        --tls-key-path "$HOME/.ssh/tcloud.key" \
+	$1
+}
+
+run_command_withqueue() {
     temporal workflow $command \
         --task-queue $task_queue \
         --type $workflow_type \
@@ -26,6 +37,8 @@ start_workflow() {
         --tls-cert-path "$HOME/.ssh/tcloud.pem" \
         --tls-key-path "$HOME/.ssh/tcloud.key"
 }
+
+
 
 # Parse flags
 
@@ -56,7 +69,29 @@ address="$namespace.tmprl.cloud:$port"
 workflow_id="$workflow_type-$(date +%s)"
 
 case "$command" in
-    start) start_workflow "${@:2}" ;;
+
+    start)
+        run_command_withqueue ;;
+
+    list)  
+        run_command_basic "--limit 10 --color never --fields Execution.WorkflowId -o card" ;;
+
+    latest)
+        command="list"
+        output=$(run_command_basic "--limit 1 --color never --fields Execution.WorkflowId -o card")
+        id=$(echo $output |  sed 's/[^0-9]*//g')
+        echo "$workflow_type-$id"
+        ;;
+
+    results)
+        command="list"
+        output=$(run_command_basic "--limit 1 --color never --fields Execution.WorkflowId -o card")
+        id=$(echo $output |  sed 's/[^0-9]*//g')
+        workflow_execution="$workflow_type-$id"
+        command="show --workflow-id $workflow_execution"
+        details=$(run_command_basic "")
+        echo $details | sed 's/.*Output: \[.//' | sed 's/.\]//'
+        ;;
 
     *) usage ;;
 esac

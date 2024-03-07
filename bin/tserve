@@ -9,57 +9,52 @@
 script_name=$(basename "$0")
 default_port=8233
 not_running="Temporal server is not currently running"
-
-# Port Number
 port=$default_port
 
-# Function to display usage message
+# Usage
 function usage_message() {
-    echo "Usage: $script_name [--port PORT] COMMAND"
+    echo "Usage: $script_name [--port PORT] command"
     echo "Commands:"
     echo "  start     Start temporal server"
     echo "  stop      Stop temporal server"
-    echo "  info      Check if temporal server is running"
-    echo "  web       Open web UI of temporal server"
+    echo "  check     Check if temporal server is running"
+    echo "  open      Open web UI of temporal server"
 }
 
-# Execute asynchronously. Send output to /dev/null.
-function execute_async() {
-    `which temporal` server start-dev --ui-port $port >/dev/null 2>&1 &
-    echo "Execution started on port $port"
-}
-
-# Open Web browser (requires Python)
-open_browser() {
-  if command -v python >/dev/null 2>&1 || 
-     command -v python3 >/dev/null 2>&1; then
-    python_command=$(command -v python3 || command -v python)
-    echo "Opening web page with python"
-    "$python_command" -m webbrowser "http://localhost:$port/" > /dev/null
-  else
-    echo "Python is not installed. Unable to open the web browser."
-  fi
-}
-
-# Check for running process
+# Check if temporal is already running
 function check_process() {
-    pgrep temporal >/dev/null
-    return $?
+    pgrep temporal >/dev/null; return $?
 }
 
-# Check the current port number
+# Fetch the current port number
 fetch_port() {
-    ps -eo args | grep "temporal.*--ui-port" | sed -n 's/.*--ui-port \([0-9]\{1,\}\).*/\1/p'
+    port=$(ps -eo args | grep "temporal.*--ui-port" | sed -n 's/.*--ui-port \([0-9]\{1,\}\).*/\1/p')
 }
 
-# Return either the current port or an unknown port
-function fetch_port_string() {
-    local ui_port=$(fetch_port)
-    if [ -n "$ui_port" ]; then
-        echo "port $ui_port"
-    else
-        echo "an unknown port (default: $default_port)"
-    fi
+# Fetch port as string
+function port_string() {
+    fetch_port
+    if [ -n "$port" ]; then echo "port $port";
+    else echo "an unknown port (default: $default_port)"; fi
+}
+
+# Start server/cluster in background
+start_temporal() {
+  temporal_path=$(command -v temporal)  
+  if [[ -z "$temporal_path" ]]; then
+    echo "Temporal is not installed. Unable to start Temporal server."; return; fi
+  commands="server start-dev --ui-port $port"
+  "$temporal_path" $commands >/dev/null 2>&1 &
+  echo "Server started on port $port"
+}
+
+# Open browser (requires Python)
+open_browser() {
+  python_command=$(command -v python3 || command -v python)
+  if [[ -z "$python_command" ]]; then
+    echo "Python is not installed. Unable to open the web browser."; return; fi
+  echo "Opening web page with Python using default browser"
+  "$python_command" -m webbrowser "http://localhost:$port/" > /dev/null
 }
 
 # Parse flags
@@ -71,47 +66,31 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Parse commands
-if [[ "$#" -eq 0 ]]; then
-    usage_message; exit 0
-fi
-
-# Parse commands
-if [[ "$#" -gt 1 ]]; then
-    echo "Error: Only one command expected"; usage_message; exit 1
-fi
+# Process commands
+if [[ "$#" -eq 0 ]]; then usage_message; exit 0; fi
+if [[ "$#" -gt 1 ]]; then echo "Error: Only one command expected"; usage_message; exit 1; fi
 
 case "$1" in
     start)
-        if check_process; then 
-            fetch_port
-            echo "Temporal is already running on $(fetch_port)"; exit 1; 
-        fi
-        execute_async ;; 
+        if check_process; then fetch_port
+            echo "Temporal is already running on port $port"; exit 1; fi
+        start_temporal ;; 
     stop)
         if check_process; then 
-            pkill temporal; echo "Ended temporal process."; exit 0; 
-        fi
+            pkill temporal; echo "Ended temporal process."; exit 0; fi
         echo "Error: $not_running"; exit 1 ;; 
-    info)
-        if check_process; then
-            echo "Temporal server is running on $(fetch_port_string)."
-        else
-            echo $not_running
-        fi ;;
-    web)
+    check | info | port)
+        if check_process; then echo "Temporal server is running on $(port_string)."
+        else echo $not_running; fi ;;
+    open | web | browse)
         if check_process; then
             uiport=$(fetch_port)
             if [ -z "$ui_port" ]; then ui_port=$default_port; fi
             open_browser "localhost:$ui_port"
             exit 0
-        else
-            echo $not_running
-        fi ;;
+        else echo $not_running; fi ;;
     *)
-        echo "Error: Unknown command $1"
-        usage_message
-        exit 1 ;;
+        echo "Error: Unknown command $1"; usage_message; exit 1 ;;
 esac
 
 exit 0

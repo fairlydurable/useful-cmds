@@ -12,59 +12,34 @@ Usage: tserve [--port PORT] COMMAND
 Commands:
   start     Start temporal server
   stop      Stop temporal server
-  info      Check if temporal server is running
-  web       Open web UI of temporal server
+  check     Check if temporal server is running
+  open      Open web UI of temporal server
 ```
 
-**tflow** - Start, stop, list or inspect a Temporal tutorial Workflow. The Workflow JSON data defaults to _"Hello World"_, as a JSON string. The Task-Queue used is `TutorialTaskQueue`; the Workflow type is `TutorialWorkflow`. I may change this at some point.
-
+**flow** - Interact with local and cloud-based Temporal workflows.
 ```
-$ tflow
-Usage: tflow <command> [json|id-number]
-  start [input]   Start new Workflow.
-  terminate <id>  Terminate a Workflow.
-  running         List active workflows.
-  list            List up to 10 workflows from this server session.
-  killall         Terminate all active Workflows.
-  usage-long      More usage options.
+$ flow
+Usage: flow command [flags|options]
 
-Description: Create and manage workflows on the Temporal Development Server.
-```
+Call Info
+  --input input-value           only strings, use quotes
+  --namespace namespace-value   set the namespace
+  --port port-value             set the port value
+  --workflow workflow-function  set the workflow type
+  --workflow-id id-value        set the workflow id
+Cloud
+  --ca-base name                run on cloud, key/pem name in ~/.ssh
+  --docs                        docs team cloud
+Customization
+  --json                        output JSON
+  --result                      extract 'show' result via JSON
 
-Other options:
-
-```
-$ tflow usage-long
-Usage: tflow <command> [json|id-number]
-  usage-long      This message.
-  latest          Show most recent Workflow.
-  result          Show result of most recent Workflow.
-  runid <id>      Show Workflow run-id.
-  start [input]   Start new Workflow.
-  cancel <id>     Cancel Workflow.
-  cancelit        Cancel most recent Workflow.
-  terminate <id>  Terminate a Workflow.
-  describe <id>   Describe Workflow.
-  describeit      Describe most recent Workflow.
-  show <id>       Show Workflow details.
-  showit          Show details for most recent Workflow.
-  showlong        Show in-depth details for most recent Workflow.
-  list            List up to 10 recent Workflows.
-  running         List active workflows.
-  killall         Terminate all active Workflows.
-  signal          Not yet implemented.
-```
-
-**clflow** - Start a new Temporal Cloud workflow. In development.
-
-```
-$ clflow
-Usage: clflow workflow-type command
-           [--input INPUT] [--port PORT] [--namespace NAMESPACE]
-  start    Start new Workflow.
-Description: Create and manage workflows on the Temporal Cloud Server.
-The Workflow ID, Task Queue, and Workflow Type are all set to match the
-Workflow definition you use. (Tutorials: TutorialWorkflow)
+Examples
+    flow 'list --color never --limit 10' [--docs]
+    flow start --workflow TutorialWorkflow [--docs]
+    flow show --workflow-id TutorialWorkflow-1709349797 [--docs]
+    flow show --docs --result --workflow-id TutorialWorkflow-1709349797
+Temporal Workflows With Less Typing
 ```
 
 ### Authentication Support for GitHub

@@ -1,0 +1,135 @@
+#!/bin/bash
+
+# Long Usage
+function long-usage {
+    
+    exit 0
+}
+
+if [ "$#" -gt 0 ] && [ "$1" = "--help" ]; then long-usage; fi
+
+# Usage
+function usage {
+    echo "Usage: $(basename "$0") command [flags|options]"
+    echo
+    echo "Call Info"
+    echo "  --input input-value           only strings, use quotes"
+    echo "  --namespace namespace-value   set the namespace"
+    echo "  --port port-value             set the port value"
+    echo "  --workflow workflow-function  set the workflow type"
+    echo "  --workflow-id id-value        set the workflow id"
+    echo "Cloud"
+    echo "  --ca-base name                run on cloud, key/pem name in ~/.ssh"
+    echo "  --docs                        docs team cloud"
+    echo "Customization"
+    echo "  --json                        output JSON"
+    echo "  --result                      extract 'show' result via JSON"
+    echo
+    echo "Examples"
+    echo "    flow 'list --color never --limit 10' [--docs]"
+    echo "    flow start --workflow TutorialWorkflow [--docs]"
+    echo "    flow show --workflow-id TutorialWorkflow-1709349797 [--docs]"
+    echo "    flow show --docs --result --workflow-id TutorialWorkflow-1709349797"
+    echo "Temporal Workflows With Less Typing"
+    exit 1
+}
+if [ "$#" -lt 2 ]; then usage; fi
+command="$1"; shift
+
+# Utility
+jq_check() {
+  if command -v jq >/dev/null 2>&1; then return; fi
+  echo "Prerequisite 'jq' not found. Required for this command."
+  echo "Install with Homebrew: brew install jq"
+  exit 1
+}
+
+# Defaults
+cloud="false"; ca_basename="tcloud"; cert_path=""; key_path=""
+namespace="default"; port="7233"
+workflow="false"; workflow_type=""
+task_queue=""; workflow_id=""; input='null'; init_input='null'
+json="false"; result="false"
+
+# Read Flags/Options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --ca-base)
+        ca_basename=$2; shift; cloud="true"
+        cert_path="--tls-cert-path $HOME/.ssh/$ca_basename.pem"
+        key_path="--tls-key-path   $HOME/.ssh/$ca_basename.key"
+        ;;
+        
+        --namespace | --docs | --erica)
+            case $1 in
+                --namespace) namespace=$2; shift ;;
+                --erica)
+                    namespace="ericasadun-dev.a2dd6" # Undocumented
+                    cloud="true"
+                    cert_path="--tls-cert-path $HOME/.ssh/tcloud.pem"
+                    key_path="--tls-key-path   $HOME/.ssh/tcloud.key";;
+                --docs)
+                    namespace="docs-assembly.a2dd6"
+                    cloud="true"
+                    cert_path="--tls-cert-path $HOME/.ssh/tcloud.pem"
+                    key_path="--tls-key-path   $HOME/.ssh/tcloud.key";;
+                *) break ;;
+            esac
+        ;;
+        
+        --input) input=\"$2\"; shift ;;
+        --port) port=$2; shift ;;
+        --workflow)
+            workflow_type=$2; shift; workflow="true"
+            task_queue="$workflow_type-queue"
+            workflow_id="$workflow_type-$(date +%s)" ;;
+        --workflow-id) workflow_id=$2; shift ;;
+
+        --json) jq_check; json="true" ;;
+        --result) jq_check; json="true"; result="true" ;;
+
+        *) break ;;
+    esac
+    shift
+done
+
+address="$namespace.tmprl.cloud:$port"
+invocation="temporal workflow $command"
+
+if [ $workflow = "true" ]; then
+    invocation="$invocation --type $workflow_type"
+    invocation="$invocation --workflow-id $workflow_id"
+    invocation="$invocation --task-queue $task_queue"
+fi
+
+if [ "$namespace" != "default" ]; then
+    invocation="$invocation --namespace $namespace"
+    if [ "$cloud" == "true" ]; then
+        invocation="$invocation --address $address"
+        invocation="$invocation $cert_path"
+        invocation="$invocation $key_path"
+    fi
+fi
+
+if [ "${input}" != "${init_input}" ]; then
+    invocation="$invocation --input ${input}"
+fi
+
+if [ $json = "true" ]; then
+    invocation="$invocation --output json"
+fi
+
+case $command in
+    "show" ) invocation="$invocation --workflow-id $workflow_id" ;;
+esac
+
+if [ $result = "true" ]; then
+    exec $invocation | `which jq` -r '.events[] | select(.eventType == "WorkflowExecutionCompleted").workflowExecutionCompletedEventAttributes.result.payloads[].data' | /usr/bin/base64 -d | /usr/bin/xargs /bin/echo
+    exit 0
+fi
+
+
+# echo $invocation
+${invocation}
+
+exit 0
