@@ -17,28 +17,25 @@ Commands:
 ```
 
 **flow** - Interact with local and cloud-based Temporal workflows.
+A more general utility than tflow and clflow, perhaps replacing
+them at some future point. Since this is general, there's more
+set-up involved with 'set', but the overhead isn't large.
+Start with 'flow set' to interactively add all the necessary
+component presets, then use normal 'temporal' commands and
+modifiers, like --color false (a possible future enhancement).
+
 ```
 $ flow
-Usage: flow command [flags|options]
+Usage: flow command [arguments]
+  Presets:
+      set [key value]  set presets (interactive when no kv)
+      unset [key]      remove preset | all presets
+      get [key]        show presets  | all presets
+      keys             show supported keys
 
-Call Info
-  --input input-value           only strings, use quotes
-  --namespace namespace-value   set the namespace
-  --port port-value             set the port value
-  --workflow workflow-function  set the workflow type
-  --workflow-id id-value        set the workflow id
-Cloud
-  --ca-base name                run on cloud, key/pem name in ~/.ssh
-  --docs                        docs team cloud
-Customization
-  --json                        output JSON
-  --result                      extract 'show' result via JSON
+  Commands pass through to 'temporal' except presets and:
+     results       extract results via 'jq' and 'base64'
 
-Examples
-    flow 'list --color never --limit 10' [--docs]
-    flow start --workflow TutorialWorkflow [--docs]
-    flow show --workflow-id TutorialWorkflow-1709349797 [--docs]
-    flow show --docs --result --workflow-id TutorialWorkflow-1709349797
 Temporal Workflows With Less Typing
 ```
 

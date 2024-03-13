@@ -1,135 +1,348 @@
 #!/bin/bash
 
-# Long Usage
-function long-usage {
-    
+# NOTE: Implementation does not use associative arrays to support
+#       backward compatibility. Apple's default Bash install at 
+#       GNU bash, version 3.2.57(1)-release is pre-Bash 4 vs Ubuntu.
+#       Other meta-programming also does not work in pre-Bash 4
+#       releases. The result is less than ideal but functions.
+
+CONFIG_FILE="$HOME/.tflowrc"
+
+declare workflow port namespace input ca_base workflow_id use_wf_id cloud json key value
+
+confirm_yn() {
+    local prompt="$1 (y/n): "; read -p "$prompt" choice
+    choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]')
+    return $([[ $choice == "y" ]])
+}
+
+kv_store_full_reset() {
+    if [ ! -f "$CONFIG_FILE" ]; then echo "Nothing to clean"; exit 0; fi
+    echo "CAUTION: This action cannot be undone"
+    if ! confirm_yn "Proceed?"; then echo "Skipping."; exit 1; fi
+    rm "$CONFIG_FILE"
+    echo "Removed $CONFIG_FILE"
     exit 0
 }
 
-if [ "$#" -gt 0 ] && [ "$1" = "--help" ]; then long-usage; fi
-
-# Usage
-function usage {
-    echo "Usage: $(basename "$0") command [flags|options]"
-    echo
-    echo "Call Info"
-    echo "  --input input-value           only strings, use quotes"
-    echo "  --namespace namespace-value   set the namespace"
-    echo "  --port port-value             set the port value"
-    echo "  --workflow workflow-function  set the workflow type"
-    echo "  --workflow-id id-value        set the workflow id"
-    echo "Cloud"
-    echo "  --ca-base name                run on cloud, key/pem name in ~/.ssh"
-    echo "  --docs                        docs team cloud"
-    echo "Customization"
-    echo "  --json                        output JSON"
-    echo "  --result                      extract 'show' result via JSON"
-    echo
-    echo "Examples"
-    echo "    flow 'list --color never --limit 10' [--docs]"
-    echo "    flow start --workflow TutorialWorkflow [--docs]"
-    echo "    flow show --workflow-id TutorialWorkflow-1709349797 [--docs]"
-    echo "    flow show --docs --result --workflow-id TutorialWorkflow-1709349797"
-    echo "Temporal Workflows With Less Typing"
-    exit 1
+kv_store_get_value() { 
+    if [ ! -f "$CONFIG_FILE" ]; then return 1; fi
+    value=$(grep "^$key=" "$CONFIG_FILE" | sed 's/^.*=//')
 }
-if [ "$#" -lt 2 ]; then usage; fi
+
+kv_store_has_value() { 
+    if [ ! -f "$CONFIG_FILE" ]; then return 1; fi
+    if grep -q "^$key=" "$CONFIG_FILE"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+kv_store_delete_value() {
+    if [ ! -f "$CONFIG_FILE" ]; then return 1; fi
+        awk -v key="$key" -F '=' '!($1 == key)' \
+	"$CONFIG_FILE" > temp_file && mv temp_file "$CONFIG_FILE"
+}
+
+# Hydrate value into local variable
+kv_set_from_value() {
+    case $key in
+
+    # OPTIONS
+    "workflow") workflow=$value ;;
+    "port") port=$value ;;
+    "namespace") namespace=$value ;;
+    "input") input=$value ;;
+    "ca_base") ca_base=$value ;;
+    "workflow_id") workflow_id=$value ;;
+
+    # FLAGS
+    "use_wf_id") use_wf_id=$value ;;
+    "cloud") cloud=$value ;;
+    "json")  json=$value ;;
+
+    *) ;;
+    esac
+}
+
+# Prepare value variable for key-value store
+kv_set_to_value() {
+    case $key in
+
+    # OPTIONS
+    "workflow") value="$workflow" ;;
+    "port") value="$port" ;;
+    "namespace") value="$namespace" ;;
+    "input") value="$input" ;;
+    "ca_base") value="$ca_base" ;;
+    "workflow_id") value="$workflow_id" ;;
+
+    # FLAGS
+    "use_wf_id") value="$use_wf_id" ;;
+    "cloud") value="$cloud" ;;
+    "json")  value="$json" ;;
+
+    *) ;;
+    esac
+}
+
+# Use key name to persist local key variable to key-value store
+kv_write_to_store() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        touch "$CONFIG_FILE"
+    fi
+    if kv_store_has_value; then kv_store_delete_value; fi
+    echo "$key=$value" >> "$CONFIG_FILE"
+}
+
+OPTIONS=(
+    "workflow"
+    "port"
+    "namespace"
+    "input"
+    "ca_base" 
+    "workflow_id"
+)
+
+OPTION_EXPLANATIONS=(
+    "Workflow type"
+    "Cluster/Server port"
+    "Namespace"
+    "Workflow input (unquoted)"
+    "SSH pem/key base name"
+    "Active Workflow ID"
+)
+
+OPTION_DEFAULTS=("TutorialWorkflow"
+              "7233"
+              "default"
+              "Hello World"
+              "tcloud"
+              ""
+)
+
+FLAGS=(
+   "use_wf_id"
+   "cloud"
+   "json"
+)
+
+FLAG_EXPLANATIONS=(
+    "Name the Workflow ID"
+    "Execute Workflow on Temporal Cloud"
+    "JSON output"
+)
+
+kv_store_show_pairs() {
+    if [ ! -f "$CONFIG_FILE" ]; then
+        echo "Configuration file not found: $CONFIG_FILE"; return
+    fi
+
+    echo "WORKFLOW PRESETS"
+    for ((idx=0; idx<${#OPTIONS[@]}; idx++)); do
+        key="${OPTIONS[idx]}"
+        if kv_store_has_value; then
+            kv_store_get_value
+            echo "$key($value)"
+        else echo "$key(key is not set)"
+        fi
+    done
+    echo
+    echo "EXECUTION OPTIONS"
+    for ((idx=0; idx<${#FLAGS[@]}; idx++)); do
+        key="${FLAGS[idx]}"
+        if kv_store_has_value; then
+            kv_store_get_value
+            echo "$key($value)"
+        else echo "$key(key is not set)"
+        fi
+    done
+}
+
+kv_hydrate() {
+    if [ ! -f "$CONFIG_FILE" ]; then return; fi
+    while IFS= read -r line; do
+        key=$(echo "$line" | cut -d '=' -f1)
+        value=$(echo "$line" | cut -d '=' -f2)
+        kv_set_from_value
+    done < "$CONFIG_FILE"
+}
+
+set_presets() {
+    echo "OPTIONS"
+    for ((idx=0; idx<${#OPTIONS[@]}; idx++)); do
+        key="${OPTIONS[idx]}"
+        if kv_store_has_value; then kv_store_get_value;
+        else value="${OPTION_DEFAULTS[idx]}"; fi
+
+        expl="${OPTION_EXPLANATIONS[idx]}"
+        echo "$expl"
+        read -r -p "--Enter to keep, remove with - [$value]: " holdvalue
+        if [[ -n "$holdvalue" ]]; then value="$holdvalue"; fi
+
+        if [[ $value == "-" ]]; then kv_store_delete_value $key; 
+        else kv_set_from_value; kv_write_to_store; fi
+    done
+    echo
+    echo "FLAGS"
+    for ((idx=0; idx<${#FLAGS[@]}; idx++)); do
+        key="${FLAGS[idx]}"
+        if kv_store_has_value; then kv_store_get_value;
+        else value="n"; fi
+
+        expl="${FLAG_EXPLANATIONS[idx]}"
+        read -r -p "--$expl (yn) [$value]: " holdvalue
+        if [[ -n "$holdvalue" ]]; then value="$holdvalue"; fi
+        value=$(echo "$value" | tr '[:upper:]' '[:lower:]')
+
+        if [[ $value == "-" ]]; then kv_store_delete_value $key; 
+        else kv_set_from_value; kv_write_to_store; fi
+    done
+}
+
+check_required_keys() {
+    if [ "$#" -eq 0 ]; then return 1; fi
+    for key in "${@}"; do
+        if [ ! kv_store_has_value ]; then 
+            echo "Missing key: $key"
+            return 1
+        fi 
+    done
+    return 0
+}
+
+require_keys() {
+    if ! check_required_keys "$@"; then 
+        echo "Expected keys: $@"
+        exit 1; 
+    fi
+}
+
+function usage {
+    echo "Usage: $(basename "$0") command [arguments]"
+    echo "  Presets:"
+    echo "      set [key value]  set presets (interactive when no kv)"
+    echo "      unset [key]      remove preset | all presets"
+    echo "      get [key]        show presets  | all presets"
+    echo "      keys             show supported keys"
+    echo
+    echo "  Commands pass through to 'temporal' except presets and:"
+    echo "     results       extract results via 'jq' and 'base64'"
+    echo
+    echo "Temporal Workflows With Less Typing"
+    exit 0
+}
+
+if [ "$#" -eq 0 ]; then usage; fi
+if [ "$#" -gt 0 ] && [ "$1" == "--help" ]; then usage; fi
+
 command="$1"; shift
 
-# Utility
-jq_check() {
-  if command -v jq >/dev/null 2>&1; then return; fi
-  echo "Prerequisite 'jq' not found. Required for this command."
-  echo "Install with Homebrew: brew install jq"
-  exit 1
-}
 
-# Defaults
-cloud="false"; ca_basename="tcloud"; cert_path=""; key_path=""
-namespace="default"; port="7233"
-workflow="false"; workflow_type=""
-task_queue=""; workflow_id=""; input='null'; init_input='null'
-json="false"; result="false"
+case $command in
+    # Persistent store
+    "set")
+        if [ "$#" -gt 1 ]; then key="$1"; value="$2"; kv_write_to_store; exit 0; fi
+        set_presets; exit 0 ;;
+    "unset") 
+        if [ "$#" -gt 0 ]; then key="$1"; kv_store_delete_value; exit 0; fi
+        kv_store_full_reset; exit 0 ;;
+    "get") 
+        if [ "$#" -gt 0 ]; then key="$1"; kv_store_get_value
+            if [ -n "$value" ]; then echo "$key($value)"; else echo "$key(key is not set)"; fi
+            exit 0
+        fi
+        kv_store_show_pairs; exit 0 ;;
+    "keys") echo "${OPTIONS[@]}"; echo "${FLAGS[@]}"; exit 0;;
 
-# Read Flags/Options
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        --ca-base)
-        ca_basename=$2; shift; cloud="true"
-        cert_path="--tls-cert-path $HOME/.ssh/$ca_basename.pem"
-        key_path="--tls-key-path   $HOME/.ssh/$ca_basename.key"
-        ;;
-        
-        --namespace | --docs | --erica)
-            case $1 in
-                --namespace) namespace=$2; shift ;;
-                --erica)
-                    namespace="ericasadun-dev.a2dd6" # Undocumented
-                    cloud="true"
-                    cert_path="--tls-cert-path $HOME/.ssh/tcloud.pem"
-                    key_path="--tls-key-path   $HOME/.ssh/tcloud.key";;
-                --docs)
-                    namespace="docs-assembly.a2dd6"
-                    cloud="true"
-                    cert_path="--tls-cert-path $HOME/.ssh/tcloud.pem"
-                    key_path="--tls-key-path   $HOME/.ssh/tcloud.key";;
-                *) break ;;
-            esac
-        ;;
-        
-        --input) input=\"$2\"; shift ;;
-        --port) port=$2; shift ;;
-        --workflow)
-            workflow_type=$2; shift; workflow="true"
-            task_queue="$workflow_type-queue"
-            workflow_id="$workflow_type-$(date +%s)" ;;
-        --workflow-id) workflow_id=$2; shift ;;
+    # Undocumented
+    "erica") 
+        key="cloud"; value="y"; kv_write_to_store
+        key="ca_base"; value="tcloud"; kv_write_to_store
+        key="namespace"; value="ericasadun-dev.a2dd6"; kv_write_to_store
+        exit 0
+    ;;
+    "docs") 
+        key="cloud"; value="y"; kv_write_to_store
+        key="ca_base"; value="tcloud"; kv_write_to_store
+        key="namespace"; value="docs-assembly.a2dd6"; kv_write_to_store
+        exit 0
+    ;;
+    "setip")
+        key="input"; value=$(curl -s4 ifconfig.co); kv_write_to_store
+        exit 0
+    ;;
+    "setdad")
+        key="input"; value=$(curl -s https://icanhazdadjoke.com); kv_write_to_store
+        exit 0
+    ;;
+    *) ;;
+esac
 
-        --json) jq_check; json="true" ;;
-        --result) jq_check; json="true"; result="true" ;;
+kv_hydrate
 
-        *) break ;;
-    esac
-    shift
-done
-
-address="$namespace.tmprl.cloud:$port"
 invocation="temporal workflow $command"
 
-if [ $workflow = "true" ]; then
-    invocation="$invocation --type $workflow_type"
-    invocation="$invocation --workflow-id $workflow_id"
-    invocation="$invocation --task-queue $task_queue"
-fi
-
-if [ "$namespace" != "default" ]; then
-    invocation="$invocation --namespace $namespace"
-    if [ "$cloud" == "true" ]; then
-        invocation="$invocation --address $address"
-        invocation="$invocation $cert_path"
-        invocation="$invocation $key_path"
-    fi
-fi
-
-if [ "${input}" != "${init_input}" ]; then
-    invocation="$invocation --input ${input}"
-fi
-
-if [ $json = "true" ]; then
-    invocation="$invocation --output json"
+if [ -n "$cloud" ] && [ "$cloud" == "y" ]; then
+    require_keys "namespace" "port" "ca_base"
 fi
 
 case $command in
-    "show" ) invocation="$invocation --workflow-id $workflow_id" ;;
+    "show" )
+        require_keys "workflow_id"
+        invocation="$invocation --workflow-id $workflow_id"
+    ;;
+    "results")
+        show_results="y"
+        require_keys "workflow_id" "json"
+        invocation="temporal workflow show --workflow-id $workflow_id"
+    ;;
 esac
 
-if [ $result = "true" ]; then
-    exec $invocation | `which jq` -r '.events[] | select(.eventType == "WorkflowExecutionCompleted").workflowExecutionCompletedEventAttributes.result.payloads[].data' | /usr/bin/base64 -d | /usr/bin/xargs /bin/echo
+
+if [ "$command" == "start" ]; then
+    require_keys "workflow" "use_wf_id"
+    invocation="$invocation --type $workflow"
+    invocation="$invocation --task-queue ${workflow}-queue"
+    if [ "$use_wf_id" == "y" ]; then
+        if [ -n "$workflow_id" ]; then
+            invocation="$invocation --workflow-id $workflow_id"
+        else
+            invocation="$invocation --workflow-id $workflow$(date +%s)"
+        fi
+    fi
+    if [ -n "$input" ]; then
+        if [ "$input" == "'null'" ]; then
+            invocation="$invocation --input 'null'"
+        else
+            invocation="$invocation --input \"$input\""
+        fi
+    fi
+fi
+
+if [ -n "$namespace" ] && [ "$namespace" != "default" ]; then
+    invocation="$invocation --namespace $namespace"
+fi
+
+if [ -n "$cloud" ] && [ "$cloud" == "y" ]; then
+    address="$namespace.tmprl.cloud:$port"
+    cert_path="--tls-cert-path $HOME/.ssh/$ca_base.pem"
+    key_path="--tls-key-path $HOME/.ssh/$ca_base.key"
+    invocation="$invocation --address $address"
+    invocation="$invocation $cert_path"
+    invocation="$invocation $key_path"
+fi
+
+if [ -n "$json" ] &&[ "$json" == "y" ]; then
+    invocation="$invocation --output json"
+fi
+
+if [ -n "$show_results" ] && [ "$show_results" == "y" ]; then
+    $invocation $@ | `which jq` -r '.events[] | select(.eventType == "WorkflowExecutionCompleted").workflowExecutionCompletedEventAttributes.result.payloads[].data' | /usr/bin/base64 -d | /usr/bin/xargs /bin/echo
     exit 0
 fi
 
-
-# echo $invocation
-${invocation}
+$invocation $@
 
 exit 0
