@@ -114,6 +114,8 @@ https://docs.temporal.io/workers
 
 You may have to give things permission to open other things through System Preferences.
 
+**make.sh** - Run the docs assembly process. This is Patrick's script that I updated to be more backward compatible and eliminate command-line flags.
+
 **rename** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
 
 ```
