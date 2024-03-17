@@ -1,0 +1,24 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: $(basename "$0") <pattern> <replacement> <paths>"
+    echo "Rename multiple files at once. For example:"
+    echo "    $(basename "$0") \"[Oo]riginal\" \"NewName\" Orig*"
+    exit 1
+}
+
+# Check if no arguments are provided and display usage if true
+if [ "$#" -eq 0 ]; then
+    usage
+fi
+
+# Assign the source pattern and rename pattern from arguments
+source_pattern="$1"
+rename_pattern="$2"
+shift 2
+
+# Iterate over each file provided as an argument and rename them
+for file in "$@"; do
+    # Use 'sed' to perform the renaming operation based on patterns
+    mv "$file" "$(echo "$file" | sed "s/$source_pattern/$rename_pattern/")"
+done

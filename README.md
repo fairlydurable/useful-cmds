@@ -114,6 +114,14 @@ https://docs.temporal.io/workers
 
 You may have to give things permission to open other things through System Preferences.
 
+**rename** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
+
+```
+Usage: rename <pattern> <replacement> <paths>
+Rename multiple files at once. For example:
+    rename "[Oo]riginal" "NewName" Orig*
+```
+
 **pman** - Opens the output of `man` as a formatted PDF document in Preview. This version is Sonoma-and-later only.
 
 ```
