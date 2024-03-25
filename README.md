@@ -8,12 +8,13 @@
 
 ```
 $ tserve
-Usage: tserve [--port PORT] COMMAND
+Usage: tserve [--port PORT] command
 Commands:
-  start     Start temporal server
-  stop      Stop temporal server
-  check     Check if temporal server is running
-  open      Open web UI of temporal server
+  start     Start Temporal Development Server
+  stop      Stop Temporal Development Server
+  check     Check if Temporal Development Server is running
+  open      Open Temporal Development Server Web UI (requires Python)
+  schedules Open Temporal Development Server Schedule Web UI (requires Python)
 ```
 
 **flow** - Interact with local and cloud-based Temporal workflows.

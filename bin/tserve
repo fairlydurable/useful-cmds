@@ -15,10 +15,11 @@ port=$default_port
 function usage_message() {
     echo "Usage: $script_name [--port PORT] command"
     echo "Commands:"
-    echo "  start     Start temporal server"
-    echo "  stop      Stop temporal server"
-    echo "  check     Check if temporal server is running"
-    echo "  open      Open web UI of temporal server"
+    echo "  start     Start Temporal Development Server"
+    echo "  stop      Stop Temporal Development Server"
+    echo "  check     Check if Temporal Development Server is running"
+    echo "  open      Open Temporal Development Server Web UI (requires Python)"
+    echo "  schedules Open Temporal Development Server Schedule Web UI (requires Python)"
 }
 
 # Check if temporal is already running
@@ -48,13 +49,22 @@ start_temporal() {
   echo "Server started on port $port"
 }
 
-# Open browser (requires Python)
+python_command=$(command -v python3 || command -v python)
+
+# Open Browser
 open_browser() {
-  python_command=$(command -v python3 || command -v python)
   if [[ -z "$python_command" ]]; then
     echo "Python is not installed. Unable to open the web browser."; return; fi
   echo "Opening web page with Python using default browser"
   "$python_command" -m webbrowser "http://localhost:$port/" > /dev/null
+}
+
+# Open Schedules
+open_schedules() {
+  if [[ -z "$python_command" ]]; then
+    echo "Python is not installed. Unable to open the web browser."; return; fi
+  echo "Opening web page with Python using default browser"
+  "$python_command" -m webbrowser "http://localhost:$port/namespaces/default/schedules" > /dev/null
 }
 
 # Parse flags
@@ -86,7 +96,14 @@ case "$1" in
         if check_process; then
             uiport=$(fetch_port)
             if [ -z "$ui_port" ]; then ui_port=$default_port; fi
-            open_browser "localhost:$ui_port"
+            open_browser
+            exit 0
+        else echo $not_running; fi ;;
+    schedules | schedule )
+        if check_process; then
+            uiport=$(fetch_port)
+            if [ -z "$ui_port" ]; then ui_port=$default_port; fi
+            open_schedules
             exit 0
         else echo $not_running; fi ;;
     *)
