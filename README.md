@@ -17,29 +17,6 @@ Commands:
   schedules Open Temporal Development Server Schedule Web UI (requires Python)
 ```
 
-**flow** - Interact with local and cloud-based Temporal workflows.
-A more general utility than tflow and clflow, perhaps replacing
-them at some future point. Since this is general, there's more
-set-up involved with 'set', but the overhead isn't large.
-Start with 'flow set' to interactively add all the necessary
-component presets, then use normal 'temporal' commands and
-modifiers, like --color false (a possible future enhancement).
-
-```
-$ flow
-Usage: flow command [arguments]
-  Presets:
-      set [key value]  set presets (interactive when no kv)
-      unset [key]      remove preset | all presets
-      get [key]        show presets  | all presets
-      keys             show supported keys
-
-  Commands pass through to 'temporal' except presets and:
-     results       extract results via 'jq' and 'base64'
-
-Temporal Workflows With Less Typing
-```
-
 ### Authentication Support for GitHub
 
 **sshgo** - I can never remember exactly how to run the ssh agent. This remembers it for me.
@@ -73,49 +50,9 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
     Use single quotes with wildcard items to avoid expansion.
 ```
 
-**cites** - Find URLs that might cite a docs-src sourcefile node. **Requires** `rgrep`.
-
-```
-$ cites
-Usage: cites <path_to_text_file>
-Match a Docusaurus node to temporal.io URLs
-  Only run from the temporal.io Documents repo.
-  Dupe nodes w/ the same 'id' may produce extraneous URLs
-```
-
-For example:
-
-```
-concepts% cites what-is-signal-with-start.md
-https://docs.temporal.io/workflows
-concepts% cites what-is-tctl-v1.md 
-https://docs.temporal.io/tctl-v1
-concepts% cd ../cloud
-cloud% cites what-is-audit-logging.md 
-https://docs.temporal.io/cloud/audit-logging
-cloud% cites audit-logging-supported-integrations.md 
-https://docs.temporal.io/cloud/audit-logging
-
-Note: Dupe nodes w/ the same `id` may produce extraneous URLs
-
-java% cites workers.md 
-https://docs.temporal.io/dev-guide/go/features
-https://docs.temporal.io/dev-guide/java/features
-https://docs.temporal.io/dev-guide/java/foundations
-https://docs.temporal.io/dev-guide/java/project-setup
-https://docs.temporal.io/dev-guide/php/foundations
-https://docs.temporal.io/dev-guide/typescript/foundations
-https://docs.temporal.io/dev-guide/worker-performance
-https://docs.temporal.io/retry-policies
-https://docs.temporal.io/visibility
-https://docs.temporal.io/workers
-```
-
 ### Generally Useful
 
 You may have to give things permission to open other things through System Preferences.
-
-**make.sh** - Run the docs assembly process. This is Patrick's script that I updated to be more backward compatible and eliminate command-line flags.
 
 **rename** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
 
@@ -123,6 +60,12 @@ You may have to give things permission to open other things through System Prefe
 Usage: rename <pattern> <replacement> <paths>
 Rename multiple files at once. For example:
     rename "[Oo]riginal" "NewName" Orig*
+```
+
+**cleanup** - Remove single matching lines from files in a folder using recursive search. Case sensitive.
+
+```
+Usage: cleanup directory_to_clean search_string
 ```
 
 **pman** - Opens the output of `man` as a formatted PDF document in Preview. This version is Sonoma-and-later only.
@@ -147,3 +90,9 @@ Usage: snap [options]
  Space bar toggles between mouse and window capture
  Tap any key to finish video capture
 ```
+
+### Deprecated
+
+- `cites` - we no longer use Assembly. I'll see whether the URL functionality still works.
+- `make.sh` - no assembly. I'll see if there should be a convenient system to be built for this or if the tooling is good.
+- `flow`, `tflow`, `clflow` - these are all crying out for a good general rewrite. I'll get to it.

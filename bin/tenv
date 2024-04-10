@@ -1,0 +1,97 @@
+#!/bin/bash
+
+python_command=$(command -v python3 || command -v python)
+open_browser() {
+  if [[ -z "$python_command" ]]; then return; fi
+  "$python_command" -m webbrowser "$1" > /dev/null
+}
+
+echo "Interactively set Temporal Environmental Variables"
+echo ""
+echo "This script uses the 'temporal' CLI utility to configure"
+echo "Temporal Cloud connections and authentication."
+echo ""
+echo "All 'env' settings are stored in your home directory at"
+echo "    ~/.config/temporalio/temporal.yaml"
+echo ""
+
+read -p "Continue? [Yn]: " -n 1 yn
+if [[ -z $yn ]]; then yn="Y"; fi
+if [[ ! $yn =~ [Yy].* ]]; then return; fi
+
+echo ""
+echo "Step 1. Create a named environment to work with."
+echo "The environment is normally named after a business process, like 'prod'."
+echo "This script assumes you're working to set up a tutorial environment."
+echo ""
+
+current="tutorial"
+echo "Name the environment to work with (default: tutorial)"
+read -r -p "Press Enter to keep [[tutorial]]: " value
+if [[ -z "$value" ]]; then value=$current; fi
+env_name=$value
+
+echo ""
+if [[ -n "$python_command" ]]; then
+    echo "Step 2. The script will now try to open the Temporal Cloud Webpage"
+    echo "at https://cloud.temporal.io/namespaces"
+    echo ""
+    read  -p "Press Enter to continue: "
+    open_browser https://cloud.temporal.io/namespaces
+else
+    echo "Step 2. Open your browser and navigate to:"
+    echo "    https://cloud.temporal.io/namespaces"
+    echo ""
+    read  -p "Press Enter to continue: "
+fi
+
+echo ""
+echo "Step 3. Retrieving Namespace information."
+echo ""
+echo "In your browser, click on the Namespace you want to use to open the"
+echo "Namespace details page which has information you need for this setup."
+echo ""
+echo "Copy the Namespace from the top of the details page"
+echo ""
+
+# Check for pre-existing env_name environment
+env_exists=$( [ $? -eq 0 ] && echo "false" || echo "true" )
+
+# Fetch namespace.
+prompt="(not set)"
+if [[ "$env_exists" == "true" ]]; then
+    prompt=$(temporal env get "${env_name}.namespace" 2>&1)
+    if [[ -z "$prompt" ]]; then prompt="(not set)"; fi
+fi
+
+echo "Paste or type the Namespace that hosts your Workflow Executions."
+read -r -p "Press Enter to keep: [[$prompt]]: " value
+
+if [[ -n "$value" ]]; then
+    temporal env set "${env_name}.namespace" "$value"
+    newenv_name="false"
+    echo "New ${env_name}.namespace value is set"
+fi
+
+# Fetch port info
+echo "Step 4. Set up the gRPC endpoint."
+echo ""
+echo "Locate the gRPC endpoint under and the right of your Namespace's name"
+echo "on the Namespace detail page. Copy the endpoint."
+
+prompt="(not set)"
+if [[ "$env_exists" == "true" ]]; then
+    prompt=$(temporal env get "${env_name}.address" 2>&1)
+    if [[ -z "$prompt" ]]; then prompt="(not set)"; fi
+fi
+
+echo "Paste or type the gRPC endpoint."
+read -r -p "Press Enter to keep: [[$prompt]]: " value
+
+if [[ -n "$value" ]]; then
+    temporal env set "${env_name}.address" "$value"
+    newenv_name="false"
+    echo "New ${env_name}.address value is set"
+fi
+
+

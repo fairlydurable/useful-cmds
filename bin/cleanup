@@ -1,0 +1,39 @@
+#!/bin/bash
+
+process_file() {
+    local file="$1"
+    local line="$2"
+    if [ -f "$file" ]; then
+        if grep -q "$line" "$file"; then
+            awk -v pattern="$line" '$0 !~ pattern { print $0 }' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+            echo "Processed: $file"
+        else
+            echo "No match found in: $file"
+        fi
+    fi
+}
+
+recursive_process() {
+    local dir="$1"
+    local line="$2"
+    for item in "$dir"/*; do
+        if [ -d "$item" ]; then
+            recursive_process "$item" "$line"
+        elif [ -f "$item" ]; then
+            process_file "$item" "$line"
+        fi
+    done
+}
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $(basename "$0") directory_to_clean search_string"
+    exit 1
+fi
+
+if [ ! -d "$1" ]; then
+    echo "Directory '$1' not found."
+    exit 1
+fi
+
+recursive_process "$1" "$2"
+
