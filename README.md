@@ -17,9 +17,11 @@ Commands:
   schedules Open Temporal Development Server Schedule Web UI (requires Python)
 ```
 
+NOTE TO SELF: Add simple namespace creation and deletion support as I sometimes need that, so I don't have to start figuring it out each time.
+
 ### Authentication Support for GitHub
 
-**sshgo** - I can never remember exactly how to run the ssh agent. This remembers it for me.
+**sshgo** - I can never remember exactly how to run the ssh agent. This remembers it for me. Always check your keys after reboots.
 
 ```
 $ sshgo
@@ -35,9 +37,9 @@ Options:
   help:  This help message.
 ```
 
-### Documentation Repository Utilities
+### Ticketing and Documentation Repository Utilities
 
-**rgrep** - Recursive search in the file type I set, like Markdown-only or JSON-only.
+**rgrep** - Recursive search in the file type I set, like Markdown-only or JSON-only. I use this multiple times a day.
 
 ```
 Usage: rgrep [-cl] <file_extension> <search_pattern>
@@ -48,6 +50,13 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
     Use the -l flag to output only file names.
     Phrases may include multiple words without quoting.
     Use single quotes with wildcard items to avoid expansion.
+```
+
+**jira** - Open ticket in JIRA
+
+```
+Usage: jira <ticket>
+   Open an EDU ticket by name or number
 ```
 
 ### Generally Useful
@@ -62,7 +71,7 @@ Rename multiple files at once. For example:
     rename "[Oo]riginal" "NewName" Orig*
 ```
 
-**cleanup** - Remove single matching lines from files in a folder using recursive search. Case sensitive.
+**cleanup** - Remove single matching lines from files in a folder using recursive search. _Case sensitive_.
 
 ```
 Usage: cleanup directory_to_clean search_string

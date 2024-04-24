@@ -1,0 +1,21 @@
+#! /bin/bash
+
+usage() {
+    echo "Usage: $(basename "$1") <ticket>"
+    echo "   Open an EDU ticket by name or number"
+    exit 1
+}
+
+if [ $# -eq 0 ]; then usage "$(basename $0)"; fi
+
+# Strip leading EDU-. It's added back later
+number=$(echo "$1" | sed 's/EDU-//')
+
+# Valid number?
+if ! [[ $number =~ ^[0-9]+$ ]]; then
+    echo "Error: Invalid number." >&2
+    usage "$(basename $0)"
+fi
+
+# Open
+open "https://temporalio.atlassian.net/browse/EDU-${number}"
