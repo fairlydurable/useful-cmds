@@ -1,21 +1,26 @@
-#! /bin/bash
+#!/bin/bash
 
 usage() {
-    echo "Usage: $(basename "$1") <ticket>"
-    echo "   Open an EDU ticket by name or number"
+    echo "Usage: $(basename "$1") <ticket> [<ticket> ...]"
+    echo "   Open EDU tickets by name or number"
+    echo "   e.g. jira 1181 1659 2286"
     exit 1
 }
 
-if [ $# -eq 0 ]; then usage "$(basename $0)"; fi
-
-# Strip leading EDU-. It's added back later
-number=$(echo "$1" | sed 's/EDU-//')
-
-# Valid number?
-if ! [[ $number =~ ^[0-9]+$ ]]; then
-    echo "Error: Invalid number." >&2
-    usage "$(basename $0)"
+# Check if any arguments are provided
+if [ $# -eq 0 ]; then
+    usage "$(basename "$0")"
 fi
 
-# Open
-open "https://temporalio.atlassian.net/browse/EDU-${number}"
+for arg in "$@"; do
+    # Strip leading EDU-. It's added back later
+    number=$(echo "$arg" | sed 's/EDU-//')
+
+    # Valid number?
+    if ! [[ $number =~ ^[0-9]+$ ]]; then
+        echo "Error: Invalid ticket number or format for '$arg'. Skipping." >&2
+    else
+        # Open the ticket
+        open "https://temporalio.atlassian.net/browse/EDU-${number}"
+    fi
+done

@@ -55,8 +55,9 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
 **jira** - Open ticket in JIRA
 
 ```
-Usage: jira <ticket>
-   Open an EDU ticket by name or number
+Usage: jira <ticket> [<ticket> ...]
+   Open EDU tickets by name or number
+   e.g. jira 1181 1659 2286
 ```
 
 ### Generally Useful
