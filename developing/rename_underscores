@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Go through each file in the directory
+for file in *; do
+    # Replace underscores with hyphens in the filename
+    newname=$(echo "$file" | sed 's/_/-/g')
+    
+    # Rename the file
+    mv "$file" "$newname"
+done

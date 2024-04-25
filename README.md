@@ -64,10 +64,12 @@ Usage: jira <ticket> [<ticket> ...]
 
 You may have to give things permission to open other things through System Preferences.
 
-**rename** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
+**rn** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
+
+When possible, use 'rename' (via homebrew) instead
 
 ```
-Usage: rename <pattern> <replacement> <paths>
+Usage: rn <pattern> <replacement> <paths>
 Rename multiple files at once. For example:
     rename "[Oo]riginal" "NewName" Orig*
 ```
