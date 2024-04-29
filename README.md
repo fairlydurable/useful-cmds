@@ -60,6 +60,15 @@ Usage: jira <ticket> [<ticket> ...]
    e.g. jira 1181 1659 2286
 ```
 
+**cites** - Connect md or mdx node to real URLs
+
+```
+Usage: cites <path_to_text_file>
+Match a Docusaurus node to temporal.io URLs
+  Only run from the temporal.io Documents repo.
+  Dupe nodes w/ the same 'id' may produce extraneous URLs
+```
+
 ### Generally Useful
 
 You may have to give things permission to open other things through System Preferences.
