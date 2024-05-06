@@ -1,17 +1,26 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: $(basename "$1") <ticket> [<ticket> ...]"
+    echo "Usage: $(basename "$1") [-u|--url] <ticket> [<ticket> ...]"
     echo "   Open EDU tickets by name or number"
-    echo "   e.g. jira 1181 1659 2286"
+    echo "   e.g. $(basename "$1") 1181 1659 2286"
+    echo "Options:"
+    echo "  -u, --url        Echo the URL instead of opening it"
+    echo "  -h, --help       This message"
     exit 1
 }
 
-# Check if any arguments are provided
-if [ $# -eq 0 ]; then
-    usage "$(basename "$0")"
-fi
+open_url=true
 
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -u|--url) open_url=false; shift ;;
+        -h|--help) usage ;;
+        *) break ;;
+    esac
+done
+
+# All URLs printed; only the final URL stays in the clipboard
 for arg in "$@"; do
     # Strip leading EDU-. It's added back later
     number=$(echo "$arg" | sed 's/EDU-//')
@@ -20,7 +29,9 @@ for arg in "$@"; do
     if ! [[ $number =~ ^[0-9]+$ ]]; then
         echo "Error: Invalid ticket number or format for '$arg'. Skipping." >&2
     else
-        # Open the ticket
-        open "https://temporalio.atlassian.net/browse/EDU-${number}"
+        url="https://temporalio.atlassian.net/browse/EDU-${number}"
+        echo -n $url | /usr/bin/pbcopy
+        echo $url
+        if [ "$open_url" = true ]; then open "$url"; fi
     fi
 done

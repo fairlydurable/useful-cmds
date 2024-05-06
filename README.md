@@ -55,9 +55,13 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
 **jira** - Open ticket in JIRA
 
 ```
-Usage: jira <ticket> [<ticket> ...]
+$ jira --help
+Usage:  [-u|--url] <ticket> [<ticket> ...]
    Open EDU tickets by name or number
-   e.g. jira 1181 1659 2286
+   e.g.  1181 1659 2286
+Options:
+  -u, --url        Echo the URL instead of opening it
+  -h, --help       This message
 ```
 
 **cites** - Connect md or mdx node to real URLs
