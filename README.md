@@ -77,6 +77,12 @@ Match a Docusaurus node to temporal.io URLs
 
 You may have to give things permission to open other things through System Preferences.
 
+**boop** - does what `xargs open` does, but easier to boop 'em. This opens all the updated files.
+
+```
+$ git ls | boop
+```
+
 **rn** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
 
 When possible, use 'rename' (via homebrew) instead
