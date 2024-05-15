@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Check if the number of arguments is zero
+if [ $# -eq 0 ]; then
+    echo "Usage: $(basename $0) <path>"
+    exit 1
+fi
+
+# Iterate over all arguments provided to the script
+for path in "$@"; do
+    open "$(dirname "$path")"
+done

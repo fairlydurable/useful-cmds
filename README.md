@@ -83,10 +83,20 @@ You may have to give things permission to open other things through System Prefe
 $ git ls | boop
 ```
 
-**bop** - does what `xargs cites` does, but easier to bop 'em. This performs URL citation searches on the labels in the files so it's easier to update JIRA tickets.
+**urls** - does what `xargs cites` does, but easier to bop 'em. This performs URL citation searches on the labels in the files so it's easier to update JIRA tickets.
 
 ```
-$ git ls | bop
+$ git ls | urls
+```
+
+**folder** - opens the surrounding folder for a path in a new Finder window.
+
+```
+$ folder /path/to/file
+
+// OR
+
+$ git ls | xargs folder
 ```
 
 **rn** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
