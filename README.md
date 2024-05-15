@@ -83,6 +83,12 @@ You may have to give things permission to open other things through System Prefe
 $ git ls | boop
 ```
 
+**bop** - does what `xargs cites` does, but easier to bop 'em. This performs URL citation searches on the labels in the files so it's easier to update JIRA tickets.
+
+```
+$ git ls | bop
+```
+
 **rn** - Rename a bunch of files at once. Provide a source pattern, the replacement string, and the files to work on.
 
 When possible, use 'rename' (via homebrew) instead
