@@ -52,16 +52,24 @@ Usage: rgrep [-cl] <file_extension> <search_pattern>
     Use single quotes with wildcard items to avoid expansion.
 ```
 
-**jira** - Open ticket in JIRA
+**jira** - Open ticket or special pages in JIRA
 
 ```
-$ jira --help
-Usage:  [-u|--url] <ticket> [<ticket> ...]
-   Open EDU tickets by name or number
-   e.g.  1181 1659 2286
+$ jira
+Usage: jira [-u|--url] <ticket> [<ticket> ...] | <special>
+   jira 1181 1659 2286     Open tickets
+   jira kanban             Jira Kanban board
+   jira me                 Jira tasks page
+   jira bugs               RICE-sorted triaged bugs
+   jira tasks              RICE-sorted triaged tasks
+   jira issues             EDU issues (newest first)
+   jira open               RICE-sorted triage/backlist
+   jira rice               Official RICE list
+   jira intake             Google Intake form tickets
+   jira form               Google Intake form
 Options:
-  -u, --url        Echo the URL instead of opening it
-  -h, --help       This message
+  -u, --url         Echo the URL instead of opening it
+  -h, --help        This message
 ```
 
 **cites** - Connect md or mdx node to real URLs

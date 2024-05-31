@@ -1,37 +1,84 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: $(basename "$1") [-u|--url] <ticket> [<ticket> ...]"
-    echo "   Open EDU tickets by name or number"
-    echo "   e.g. $(basename "$1") 1181 1659 2286"
+    echo "Usage: $(basename "$0") [-u|--url] <ticket> [<ticket> ...] | <special>"
+    echo "   $(basename "$0") 1181 1659 2286     Open tickets"
+    echo "   $(basename "$0") kanban             Jira Kanban board"
+    echo "   $(basename "$0") me                 Jira tasks page"
+    echo "   $(basename "$0") bugs               RICE-sorted triaged bugs"
+    echo "   $(basename "$0") tasks              RICE-sorted triaged tasks"
+    echo "   $(basename "$0") issues             EDU issues (newest first)"
+    echo "   $(basename "$0") open               RICE-sorted triage/backlist"
+    echo "   $(basename "$0") rice               Official RICE list"
+    echo "   $(basename "$0") intake             Google Intake form tickets"
+    echo "   $(basename "$0") form               Google Intake form"
     echo "Options:"
-    echo "  -u, --url        Echo the URL instead of opening it"
-    echo "  -h, --help       This message"
+    echo "  -u, --url         Echo the URL instead of opening it"
+    echo "  -h, --help        This message"
     exit 1
 }
 
+handle_url() {
+    local url="$1"
+    local exit_after="$2"
+    echo -n $url | /usr/bin/pbcopy
+    echo $url
+    if [ "$open_url" = true ]; then open "$url"; fi
+    if [ "$exit_after" = true ]; then exit 0; fi
+}
+
+if [ $# -eq 0 ]; then
+    usage
+fi
+
 open_url=true
+
+case "$1" in
+    "kanban") 
+        handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/boards/32?assignee=712020%3Af0bd2188-6254-4358-8fb5-3f8370599eb0" true ;;
+    "me") 
+        handle_url "https://temporalio.atlassian.net/jira/your-work" true ;;
+    "tasks") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10234" true ;;
+    "bugs") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10233" true ;;
+    "form") 
+        echo -n "https://t.mp/edu-request" | pbcopy
+        echo "https://t.mp/edu-request"; exit 0 ;;
+    "intake") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10270" true ;;
+    "issues") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=-4" true ;;
+    "open") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10265" true ;;
+    "rice") 
+        handle_url "https://temporalio.atlassian.net/jira/dashboards/10042" true ;;
+esac
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -u|--url) open_url=false; shift ;;
-        -h|--help) usage ;;
+        -h|--help|--usage|help|usage) usage ;;
         *) break ;;
     esac
 done
 
-# All URLs printed; only the final URL stays in the clipboard
+# Process tickets
 for arg in "$@"; do
-    # Strip leading EDU-. It's added back later
-    number=$(echo "$arg" | sed 's/EDU-//')
-
-    # Valid number?
-    if ! [[ $number =~ ^[0-9]+$ ]]; then
-        echo "Error: Invalid ticket number or format for '$arg'. Skipping." >&2
+    # Check if the ticket starts with "EDU-" or another project key format
+    if [[ $arg =~ ^[A-Z]+-[0-9]+$ ]]; then
+        url="https://temporalio.atlassian.net/browse/${arg}"
     else
+        # Strip leading EDU-. It's added back later
+        number=$(echo "$arg" | sed 's/EDU-//')
+
+        # Valid number?
+        if ! [[ $number =~ ^[0-9]+$ ]]; then
+            echo "Error: Invalid ticket number or format for '$arg'. Skipping." >&2
+            continue
+        fi
+        
         url="https://temporalio.atlassian.net/browse/EDU-${number}"
-        echo -n $url | /usr/bin/pbcopy
-        echo $url
-        if [ "$open_url" = true ]; then open "$url"; fi
     fi
+    handle_url "$url" false
 done
