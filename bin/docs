@@ -4,6 +4,7 @@ usage() {
     echo "Usage: $(basename "$0") "
     echo "   pr               Open PRs at docs GitHub"
     echo "   learn            Open PRs at learn GitHub"
+    echo "   multiregion, mr  Open MRN page in Macdown"
     echo "Options:"
     echo "  -u, --url         Echo the URL instead of opening it"
     echo "  -h, --help        This message"
@@ -16,6 +17,12 @@ handle_url() {
     echo $url
     if [ "$open_url" = true ]; then open "$url"; fi
 }
+
+handle_file() {
+    readlink -f $1 | boop
+    exit 0
+}
+
 
 if [ $# -eq 0 ]; then
     usage
@@ -37,4 +44,6 @@ case "$1" in
         handle_url "https://github.com/temporalio/documentation/pulls" ;;
     "learn"|"learnprs")
         handle_url "https://github.com/temporalio/temporal-learning/pulls" ;;
+    "mr"|"mrn"|"multi-region")
+        open "$HOME/docs/docs/production-deployment/cloud/multi-region.mdx" ;;
 esac
