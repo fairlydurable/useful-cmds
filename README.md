@@ -82,6 +82,14 @@ Match a Docusaurus node to temporal.io URLs
   Dupe nodes w/ the same 'id' may produce extraneous URLs
 ```
 
+**qsay** - Say it, but quieter
+
+```
+Usage: qsay [-v <float>] <text>
+  -v <float>  Set volume level (default: 0.25)
+Description: Say it quieter
+```
+
 ### Generally Useful
 
 You may have to give things permission to open other things through System Preferences.

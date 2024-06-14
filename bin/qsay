@@ -1,0 +1,35 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: $(basename "$0") [-v <float>] <text>"
+    echo "  -v <float>  Set volume level (default: 0.25)"
+    echo "Description: Say it quieter"
+    exit 1
+}
+
+if [ $# -eq 0 ]; then
+    usage
+fi
+
+# Update volume
+volume=0.25
+if [[ "$1" == "-v" ]]; then
+    if [[ -n $2 ]] && [[ $2 =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        volume="$2"
+        shift 2
+    else
+        usage
+    fi
+fi
+
+# Fetch text
+text="$*"
+if [ -z "$text" ]; then
+    usage
+fi
+
+# Say it
+TEMP_FILE=$(mktemp /tmp/output.XXXXXX.aiff)
+say -o "$TEMP_FILE" "$text"
+afplay -v "$volume" "$TEMP_FILE"
+rm "$TEMP_FILE"
