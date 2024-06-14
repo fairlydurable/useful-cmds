@@ -62,6 +62,7 @@ Usage: jira [-u|--url] <ticket> [<ticket> ...] | <special>
    jira me                 Jira tasks page
    jira bugs               RICE-sorted triaged bugs
    jira tasks              RICE-sorted triaged tasks
+   jira grab | avail       RICE-sorted triaged bugs+tasks
    jira issues             EDU issues (newest first)
    jira open               RICE-sorted triage/backlist
    jira rice               Official RICE list

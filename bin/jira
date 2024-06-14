@@ -7,6 +7,7 @@ usage() {
     echo "   $(basename "$0") me                 Jira tasks page"
     echo "   $(basename "$0") bugs               RICE-sorted triaged bugs"
     echo "   $(basename "$0") tasks              RICE-sorted triaged tasks"
+    echo "   $(basename "$0") grab | avail       RICE-sorted triaged bugs+tasks"
     echo "   $(basename "$0") issues             EDU issues (newest first)"
     echo "   $(basename "$0") open               RICE-sorted triage/backlist"
     echo "   $(basename "$0") rice               Official RICE list"
@@ -42,6 +43,7 @@ case "$1" in
         handle_url "https://temporalio.atlassian.net/issues/?filter=10234" true ;;
     "bugs") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10233" true ;;
+    "avail"|"available"|"grab") handle_url "https://temporalio.atlassian.net/issues/EDU-1304?filter=10283" true ;;
     "form") 
         echo -n "https://t.mp/edu-request" | pbcopy
         echo "https://t.mp/edu-request"; exit 0 ;;

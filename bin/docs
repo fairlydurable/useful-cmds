@@ -46,4 +46,6 @@ case "$1" in
         handle_url "https://github.com/temporalio/temporal-learning/pulls" ;;
     "mr"|"mrn"|"multi-region")
         open "$HOME/docs/docs/production-deployment/cloud/multi-region.mdx" ;;
+    "test")
+        ;;
 esac
