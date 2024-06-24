@@ -1,0 +1,21 @@
+#!/bin/bash
+
+usage() {
+  script_name=$(basename "$0")
+  echo "Usage: $script_name /path/to/file1.md /path/to/file2.md ..."
+  exit 1
+}
+
+VALE_PATH=$(command -v vale)
+if [ -z "$VALE_PATH" ]; then
+  echo "'vale' command not found"
+  exit 1
+fi
+
+if [ "$#" -eq 0 ]; then
+  usage
+fi
+
+for file in "$@"; do
+  "$VALE_PATH" --config ~/.vale.ini "$file" | grep -v "Google Cloud Platform" | grep -v "Did you really mean" | open -f
+done

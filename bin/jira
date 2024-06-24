@@ -9,6 +9,7 @@ usage() {
     echo "   $(basename "$0") tasks              RICE-sorted triaged tasks"
     echo "   $(basename "$0") grab | avail       RICE-sorted triaged bugs+tasks"
     echo "   $(basename "$0") issues             EDU issues (newest first)"
+    echo "   $(basename "$0") new                EDU backlog issues (newest first)"
     echo "   $(basename "$0") open               RICE-sorted triage/backlist"
     echo "   $(basename "$0") rice               Official RICE list"
     echo "   $(basename "$0") intake             Google Intake form tickets"
@@ -35,7 +36,7 @@ fi
 open_url=true
 
 case "$1" in
-    "kanban") 
+    "kanban"|"k") 
         handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/boards/32?assignee=712020%3Af0bd2188-6254-4358-8fb5-3f8370599eb0" true ;;
     "me") 
         handle_url "https://temporalio.atlassian.net/jira/your-work" true ;;
@@ -49,8 +50,10 @@ case "$1" in
         echo "https://t.mp/edu-request"; exit 0 ;;
     "intake") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10270" true ;;
+    "new")
+        handle_url "https://temporalio.atlassian.net/issues/EDU-2651?filter=10284" true;;
     "issues") 
-        handle_url "https://temporalio.atlassian.net/issues/?filter=-4" true ;;
+        handle_url "https://temporalio.atlassian.net/issues/EDU-2659?filter=10287" true ;;
     "open") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10265" true ;;
     "rice") 

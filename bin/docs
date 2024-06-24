@@ -45,7 +45,7 @@ done
 
 case "$1" in
     # Docs
-    "pr"|"prs") 
+    "pr"|"prs"|"docs") 
         handle_url "https://github.com/temporalio/documentation/pulls" ;;
     "branches") 
         handle_url "https://github.com/temporalio/documentation/branches" ;;
