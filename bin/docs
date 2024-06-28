@@ -2,8 +2,8 @@
 
 usage() {
     echo "Usage: $(basename "$0") "
-    echo "   prs              Open docs PRs"
-    echo "   lprs             Open learn PRs"
+    echo "   prs              Open docs PRs (docs docs)"
+    echo "   lprs             Open learn PRs (docs learn)"
     echo "   branches         Open docs branches"
     echo "   lbranches        Open learn branches"
 
@@ -26,7 +26,6 @@ handle_file() {
     readlink -f $1 | boop
     exit 0
 }
-
 
 if [ $# -eq 0 ]; then
     usage
