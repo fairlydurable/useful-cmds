@@ -1,0 +1,27 @@
+#!/bin/bash
+
+SCRIPT_NAME=$(basename "$0")
+
+usage() {
+  echo "Usage: $SCRIPT_NAME <recipient> <message>"
+  echo "Example: $SCRIPT_NAME +1234567890 Hello. how are you"
+}
+
+if [ "$#" -lt 2 ]; then
+  usage
+  exit 1
+fi
+
+RECIPIENT="$1"
+
+case "$RECIPIENT" in
+  // custom items here. Not going to use those publicly
+  *) ;;
+esac
+
+shift
+
+MESSAGE="$*"
+
+osascript -e "tell application \"Messages\" to send \"$MESSAGE\" to buddy \"$RECIPIENT\""
+

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# npm install @darkeyedevelopers/natural-cron.js
+# see https://github.com/darkeyedevelopers/natural-cron.js for details
+# 
+# Every 3PM | Every day at 3PM | every day at 3:00PM
+# 3PM Monday through Friday
+# See also: https://bradymholt.github.io/cron-expression-descriptor/
+
+usage() {
+    echo "Usage: $(basename "$0") '<natural language expression>'"
+    echo "Example: $(basename "$0") '3 minute'"
+}
+
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+args="$*"
+
+`command -v node` `which naturalcron.js` $args
