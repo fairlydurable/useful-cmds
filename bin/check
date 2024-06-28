@@ -17,5 +17,9 @@ if [ "$#" -eq 0 ]; then
 fi
 
 for file in "$@"; do
-  "$VALE_PATH" --config ~/.vale.ini "$file" | grep -v "Google Cloud Platform" | grep -v "Did you really mean" | open -f
+  "$VALE_PATH" --config ~/docs/.vale.ini --output=line "$file" | \
+    grep -v "Google Cloud Platform" | \
+    grep -v "Did you really mean" | \
+    grep -v "[Ee]nsure" | \
+    open -f
 done
