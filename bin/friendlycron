@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# npm install friendly-cron
+
+usage() {
+    echo "Usage: $(basename "$0") '<natural language expression>'"
+    echo "Example: $(basename "$0") '3 minute'"
+}
+
+if [ $# -eq 0 ]; then
+    usage
+    exit 1
+fi
+
+args="$*"
+
+`command -v node` `which friendlycron.js` "$args"
