@@ -1,0 +1,46 @@
+#!/bin/bash
+
+width=78
+
+usage() {
+    echo "Usage: $(basename "$0") [--width|-w WIDTH]"
+    echo "Wrap input text to the specified WIDTH (default is 78)."
+    echo "Options:"
+    echo "  --width, -w WIDTH   Set the wrap width (must be a number)."
+    echo "  --help, -h          Show this help message."
+}
+
+wrap_text() {
+    fmt -w "$1" | sed 's/^[ ]*//;s/[ ]*$//' | sed 's/\.  /. /g' | pbcopy
+    echo ""
+    echo "Copied to pasteboard"
+}
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -w|--width)
+            if [[ -n $2 && $2 =~ ^[0-9]+$ ]]; then
+                width=$2
+                shift 2
+            else
+                echo "Error: --width requires a numerical argument"
+                exit 1
+            fi
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown parameter passed: $1"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+# Read all input into a variable and pre-process to remove leading and trailing spaces
+input=$(cat | sed 's/^[ ]*//;s/[ ]*$//')
+
+# Pass the pre-processed input to the wrap_text function
+echo "$input" | wrap_text "$width"
