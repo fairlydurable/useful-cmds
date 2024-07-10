@@ -6,6 +6,7 @@ usage() {
     echo "   $(basename "$0") kanban             Jira Kanban board"
     echo "   $(basename "$0") next               What's NEXT to do"
     echo "   $(basename "$0") me                 Jira tasks page"
+    echo "   $(basename "$0") docs               Brian's docs list"
     echo "   $(basename "$0") wont               My won't-do items"
     echo "   $(basename "$0") blocked            My blocked tickets"
     echo "   $(basename "$0") bugs               RICE-sorted triaged bugs"
@@ -45,6 +46,8 @@ case "$1" in
         handle_url "https://temporalio.atlassian.net/jira/your-work" true ;;
     "next"|"do") 
         handle_url "https://temporalio.atlassian.net/jira/dashboards/10042" true ;;
+    "docs")
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10298" true ;;
     "wont"|"w"|"won't")
         handle_url "https://temporalio.atlassian.net/issues/?filter=10292" true ;;
     "blocked"|"block"|"b"|"bl")
