@@ -6,6 +6,7 @@ usage() {
     echo "   lprs             Open learn PRs (docs learn)"
     echo "   branches         Open docs branches"
     echo "   lbranches        Open learn branches"
+    echo "   temp             Open main temporal home on GitHub"
 
     echo "   mrn              Open MRN page in Macdown"
 
@@ -43,6 +44,10 @@ done
 
 
 case "$1" in
+    # Temporal
+    "temp"|"temporal"|"t") 
+        handle_url "https://github.com/temporalio" ;;
+
     # Docs
     "pr"|"prs"|"docs") 
         handle_url "https://github.com/temporalio/documentation/pulls" ;;

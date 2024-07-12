@@ -75,7 +75,7 @@ esac
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -u|--url) open_url=false; shift ;;
-        -h|--help|--usage|help|usage) usage ;;
+        -h|--help|--usage|help|usage|list) usage ;;
         *) break ;;
     esac
 done
