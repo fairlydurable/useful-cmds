@@ -17,6 +17,7 @@ usage() {
     echo "   $(basename "$0") new                EDU backlog issues (newest first)"
     echo "   $(basename "$0") rice               Official RICE list"
     echo "   $(basename "$0") fridge             The ticket is in the fridge"
+    echo "   $(basename "$0") submitted          Tickets I authored"
     echo "   $(basename "$0") intake             Google Intake form tickets"
     echo "   $(basename "$0") form               Google Intake form"
     echo "Options:"
@@ -69,6 +70,8 @@ case "$1" in
         handle_url "https://temporalio.atlassian.net/issues/?filter=10284" true;;
     "issues") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10287" true ;;
+    "submitted"|"sent"|"created") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10306" true ;;
     "open") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10265" true ;;
     "rice") 
