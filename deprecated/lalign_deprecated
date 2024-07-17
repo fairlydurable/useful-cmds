@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Function to show usage message
+show_usage() {
+    echo "Usage: $(basename $0) left|right count /path/to/text/file"
+}
+
+# Check if the number of arguments is correct
+if [ "$#" -ne 3 ]; then
+    show_usage
+    exit 1
+fi
+
+# Assign arguments to variables
+direction=$1
+count=$2
+file=$3
+
+# Check if count is a valid number
+if ! [[ "$count" =~ ^[0-9]+$ ]]; then
+    echo "Error: count must be a non-negative integer."
+    exit 1
+fi
+
+# Check if file exists
+if [ ! -f "$file" ]; then
+    echo "Error: file '$file' does not exist."
+    exit 1
+fi
+
+# Shift text left or right
+case $direction in
+    left)
+        awk -v count="$count" '{for (i=0; i<count; i++) if (substr($0,1,1) == " ") $0=substr($0,2); print}' "$file"
+        ;;
+    right)
+        awk -v count="$count" '{for (i=0; i<count; i++) $0=" " $0; print}' "$file"
+        ;;
+    *)
+        show_usage
+        exit 1
+        ;;
+esac
+
+exit 0

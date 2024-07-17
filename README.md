@@ -155,6 +155,8 @@ Usage: snap [options]
  Tap any key to finish video capture
 ```
 
+**lalign** - Lets you left align code blocks without losing indentation. Works on the system pasteboard.
+
 ### Deprecated
 
 - `cites` - we no longer use Assembly. I'll see whether the URL functionality still works.

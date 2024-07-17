@@ -1,0 +1,27 @@
+#!/bin/bash
+
+usage() {
+    echo "Usage: $(basename $0)"
+    echo "    Left aligns code from system pasteboard."
+    exit 1
+}
+
+if [ "$#" -ne 0 ]; then
+    usage
+fi
+
+# Read the clipboard content using pbpaste
+content=$(pbpaste)
+
+if [ -z "$content" ]; then
+    echo "Error: pasteboard is empty."
+    exit 1
+fi
+
+# Find the minimum leading spaces in the clipboard content for non-empty lines
+min_spaces=$(echo "$content" | awk 'NF {match($0, /^[ ]*/); if (min == "" || RLENGTH < min) min = RLENGTH} END {print min}')
+
+# Shift text left by the minimum number of leading spaces and print
+echo "$content" | awk -v min_spaces="$min_spaces" 'NF {for (i=0; i<min_spaces; i++) if (substr($0,1,1) == " ") $0=substr($0,2)} {print}'
+
+exit 0
