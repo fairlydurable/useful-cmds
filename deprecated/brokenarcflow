@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Function to display help
+function show_help() {
+  echo "Usage: branch_tree.sh"
+  echo ""
+  echo "This script displays the local Git branch hierarchy in a tree-like format."
+}
+
+# Function to find the parent branch
+find_parent_branch() {
+  branch=$1
+  if [ "$branch" == "main" ]; then
+    return
+  fi
+
+  merge_base=$(git merge-base main "$branch")
+  for parent in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
+    if [ "$parent" != "$branch" ] && git merge-base --is-ancestor "$parent" "$branch"; then
+      echo "$parent"
+      return
+    fi
+  done
+
+  echo "main"
+}
+
+# Function to display the branch tree for local branches only
+function display_branch_tree() {
+  # Get the list of local branches
+  local_branches=$(git branch --format="%(refname:short)")
+
+  # Store parent-child relationships in an array
+  branch_relationships=()
+
+  for branch in $local_branches; do
+    parent_branch=$(find_parent_branch "$branch")
+    branch_relationships+=("$parent_branch:$branch")
+  done
+
+  # Function to print the tree
+  print_tree() {
+    local branch=$1
+    local prefix=$2
+    echo "${prefix}${branch}"
+    for relationship in "${branch_relationships[@]}"; do
+      parent=$(echo "$relationship" | cut -d':' -f1)
+      child=$(echo "$relationship" | cut -d':' -f2)
+      if [ "$parent" == "$branch" ]; then
+        print_tree "$child" "$prefix  "
+      fi
+    done
+  }
+
+  echo "Branch hierarchy:"
+  print_tree "main" ""
+}
+
+# Main script logic
+if [ "$1" == "help" ]; then
+  show_help
+  exit 0
+fi
+
+display_branch_tree

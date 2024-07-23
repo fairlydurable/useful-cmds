@@ -1,0 +1,31 @@
+#!/bin/bash
+
+if command -v pbpaste &> /dev/null; then
+    text=$(pbpaste)
+else
+    echo "This script only works on macOS with pbpaste available."
+    exit 1
+fi
+
+wrapped_text=$(echo "$text" | fmt -w 76)
+wrapped_text=$(echo "$wrapped_text" | sed 's/\.  /. /g')
+
+IFS=$'\n' read -d '' -r -a lines <<< "$wrapped_text"
+
+max_length=0
+for line in "${lines[@]}"; do
+    if [ ${#line} -gt $max_length ]; then
+        max_length=${#line}
+    fi
+done
+
+top_border="+"$(printf '%0.s-' $(seq 1 $((max_length + 2))))"+"
+bottom_border="$top_border"
+
+echo "$top_border"
+
+for line in "${lines[@]}"; do
+    printf "| %-*s |\n" "$max_length" "$line"
+done
+
+echo "$bottom_border"
