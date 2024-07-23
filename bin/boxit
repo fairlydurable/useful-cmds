@@ -1,5 +1,33 @@
 #!/bin/bash
 
+usage() {
+    echo "Usage: $(basename "$0") [options]"
+    echo "Format the system pasteboard into wrapped boxed text."
+    echo "Options:"
+    echo "  -h, --help              Show this help message and exit"
+    echo "  -p, --padding           Add padding lines"
+    echo "  -w WIDTH, --width WIDTH Set the width for folding (default: 72)"
+    echo "                          Note: actual width is width + 4"
+    echo "  -i INSET, --inset INSET Set the horizontal inset (default: 1)"
+    echo "  -a, --ascii             Use ASCII characters for the box"
+    exit 1
+}
+
+padding=false
+width=72
+inset=1
+ascii=false
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  -h | --help ) usage ;;
+  -p | --padding ) padding=true ;;
+  -w | --width ) shift; width=$1 ;;
+  -i | --inset ) shift; inset=$1 ;;
+  -a | --ascii ) ascii=true ;;
+  * ) usage ;;
+esac; shift; done
+
+if [[ "$1" == '--' ]]; then shift; fi
+
 if command -v pbpaste &> /dev/null; then
     text=$(pbpaste)
 else
@@ -7,25 +35,55 @@ else
     exit 1
 fi
 
-wrapped_text=$(echo "$text" | fmt -w 76)
-wrapped_text=$(echo "$wrapped_text" | sed 's/\.  /. /g')
+text=$(echo "$text" | sed $'s/\t/        /g')
+wrapped_text=$(echo "$text" | sed 's/\.  /. /g')
 
 IFS=$'\n' read -d '' -r -a lines <<< "$wrapped_text"
 
-max_length=0
-for line in "${lines[@]}"; do
-    if [ ${#line} -gt $max_length ]; then
-        max_length=${#line}
-    fi
-done
+max_length=$((width - 2 - inset * 2))
 
-top_border="+"$(printf '%0.s-' $(seq 1 $((max_length + 2))))"+"
-bottom_border="$top_border"
+if [ "$ascii" = true ]; then
+    top_border="+"$(printf '%0.s-' $(seq 1 $((width - 2))))"+"
+    bottom_border="+"$(printf '%0.s-' $(seq 1 $((width - 2))))"+"
+    padding_line="|"$(printf '%0.s ' $(seq 1 $((width - 2))))"|"
+    left_border="|"
+    right_border="|"
+else
+    top_border="┌"$(printf '%0.s─' $(seq 1 $((width - 2))))"┐"
+    bottom_border="└"$(printf '%0.s─' $(seq 1 $((width - 2))))"┘"
+    padding_line="│"$(printf '%0.s ' $(seq 1 $((width - 2))))"│"
+    left_border="│"
+    right_border="│"
+fi
+
+inset_space=$(printf '%0.s ' $(seq 1 $inset))
 
 echo "$top_border"
+if [ "$padding" = true ]; then echo "$padding_line"; fi
 
 for line in "${lines[@]}"; do
-    printf "| %-*s |\n" "$max_length" "$line"
+    native_indent=$(echo "$line" | grep -o '^[[:space:]]*')
+    effective_length=$((max_length - ${#native_indent}))
+    while [ ${#line} -gt $effective_length ]; do
+        split_pos=$(echo "$line" | awk -v max_length="$effective_length" '{
+            for (i = max_length; i > 0; i--) {
+                if (substr($0, i, 1) == " ") {
+                    print i;
+                    break;
+                }
+            }
+        }')
+        if [ -z "$split_pos" ]; then
+            split_pos=$effective_length
+        fi
+        part="${line:0:split_pos}"
+        printf "%s%s%s%-*s%s%s\n" "$left_border" "$inset_space" "$native_indent" "$effective_length" "$part" "$inset_space" "$right_border"
+        line="${line:split_pos}"
+        line="${line# }"
+        line="${native_indent}${line}"
+    done
+    printf "%s%s%s%-*s%s%s\n" "$left_border" "$inset_space" "$native_indent" "$effective_length" "$line" "$inset_space" "$right_border"
 done
 
+if [ "$padding" = true ]; then echo "$padding_line"; fi
 echo "$bottom_border"
