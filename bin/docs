@@ -7,6 +7,9 @@ usage() {
     echo "   branches         Open docs branches"
     echo "   lbranches        Open learn branches"
     echo "   temp             Open main temporal home on GitHub"
+    echo "   web              Fetch pasteboard relative link and open webpage"
+    echo "   open             Resolve, and open source (if exists)"
+    echo "   dir              Resolve, and open its parent directory"
 
     echo "   mrn              Open MRN page in Macdown"
 
@@ -18,14 +21,51 @@ usage() {
 
 handle_url() {
     local url="$1"
-    echo -n $url | /usr/bin/pbcopy
-    echo $url
+    echo -n "$url" | /usr/bin/pbcopy
+    echo "$url"
     if [ "$open_url" = true ]; then open "$url"; fi
 }
 
 handle_file() {
-    readlink -f $1 | boop
+    readlink -f "$1" | boop
     exit 0
+}
+
+handle_open() {
+    local pasteboard_url=$(pbpaste)
+
+    if [ -z "$pasteboard_url" ]; then
+        echo "Error: Pasteboard is empty or does not contain valid text"
+        exit 1
+    fi
+    
+    local full_url="http://docs.temporal.io${pasteboard_url}"
+    handle_url "$full_url"
+}
+
+handle_dir() {
+    local pasteboard_path=$(pbpaste)
+    if [ -z "$pasteboard_path" ]; then
+        echo "Error: Pasteboard is empty or does not contain valid text"
+        exit 1
+    fi
+    cd ~/docs
+    local resolved_path="`pwd -P`/docs/${pasteboard_path}"
+    local abs_path=$(echo "$resolved_path" | awk -F/ '{for (i=1; i<=NF; i++) if ($i != "") printf "/" $i; print ""}' | sed 's,//\+,/,g')
+    local parent_dir=$(dirname "$resolved_path")
+    open "$parent_dir"
+}
+
+handle_open() {
+    local pasteboard_path=$(pbpaste)
+    if [ -z "$pasteboard_path" ]; then
+        echo "Error: Pasteboard is empty or does not contain valid text"
+        exit 1
+    fi
+    cd ~/docs
+    local resolved_path="`pwd -P`/docs/${pasteboard_path}"
+    local abs_path=$(echo "$resolved_path" | awk -F/ '{for (i=1; i<=NF; i++) if ($i != "") printf "/" $i; print ""}' | sed 's,//\+,/,g')
+    xcopen "${abs_path}.mdx"
 }
 
 if [ $# -eq 0 ]; then
@@ -42,28 +82,40 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-
 case "$1" in
     # Temporal
     "temp"|"temporal"|"t") 
         handle_url "https://github.com/temporalio" ;;
-
+        
     # Docs
     "pr"|"prs"|"docs") 
         handle_url "https://github.com/temporalio/documentation/pulls" ;;
     "branches") 
         handle_url "https://github.com/temporalio/documentation/branches" ;;
-
+        
     # Learn
     "lprs"|"learn"|"learnprs")
         handle_url "https://github.com/temporalio/temporal-learning/pulls" ;;
     "lbranches")
         handle_url "https://github.com/temporalio/temporal-learning/branches" ;;
-
+        
     # Handy
     "mr"|"mrn"|"multi-region")
         open "$HOME/docs/docs/production-deployment/cloud/multi-region.mdx" ;;
-esac
+    
+    # Open from pasteboard on web
+    "web") 
+        handle_web ;;
+    
+    # Open from pasteboard
+    "open") 
+        handle_open ;;
 
-echo "Unrecognized request"
-usage
+    # Directory from pasteboard
+    "dir")
+        handle_dir ;;
+        
+    *) 
+        echo "Unrecognized request"
+        usage ;;
+esac
