@@ -10,6 +10,9 @@ usage() {
     echo "   web              Fetch pasteboard relative link and open webpage"
     echo "   open             Resolve, and open source (if exists)"
     echo "   dir              Resolve, and open its parent directory"
+    echo "   meet             Open EDU team doc"
+    echo "   brian            Open Brian meeting doc"
+    echo "   tutorials        Open Jira Launch 2024 epic"
 
     echo "   mrn              Open MRN page in Macdown"
 
@@ -98,11 +101,17 @@ case "$1" in
         handle_url "https://github.com/temporalio/temporal-learning/pulls" ;;
     "lbranches")
         handle_url "https://github.com/temporalio/temporal-learning/branches" ;;
-        
+    "tutorials"|"tutorial"|"tut")
+        handle_url "https://temporalio.atlassian.net/browse/LAUNCH-3667" ;;
+
     # Handy
     "mr"|"mrn"|"multi-region")
         open "$HOME/docs/docs/production-deployment/cloud/multi-region.mdx" ;;
-    
+     "mtg"|"edumtg"|"edu")
+        open "https://docs.google.com/document/d/1l2IGJF34G4iFEEWOFoeoPFJ2HD--0Ee4r1vDbpNC7U4/edit" ;;
+    "brian")
+        open "https://docs.google.com/document/d/1eWSWgLE3GeGMDlj1fCc7DBPH0Mr4HopuMZCu8kX9Fqw/edit#heading=h.hqizhb4lcqm2" ;;
+
     # Open from pasteboard on web
     "web") 
         handle_web ;;
