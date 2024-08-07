@@ -7,13 +7,21 @@ usage() {
     echo "   branches         Open docs branches"
     echo "   lbranches        Open learn branches"
     echo "   temp             Open main temporal home on GitHub"
+    echo ""
+    echo "   l relative       Open relative file in learn"
+    echo "   d relative       Open relative file in docs"
+    echo "   wl relative      Open relative page on learn site"
+    echo "   wd relative      Open relative file on docs site"
+    echo ""
     echo "   web              Fetch pasteboard relative link and open webpage"
     echo "   open             Resolve, and open source (if exists)"
     echo "   dir              Resolve, and open its parent directory"
+    echo ""
     echo "   meet             Open EDU team doc"
     echo "   brian            Open Brian meeting doc"
+    echo ""
     echo "   tutorials        Open Jira Launch 2024 epic"
-
+    echo ""
     echo "   mrn              Open MRN page in Macdown"
 
     echo "Options:"
@@ -24,9 +32,11 @@ usage() {
 
 handle_url() {
     local url="$1"
+    url=$(echo "$url" | awk '{gsub(/\/{2,}/, "/"); print}')
     echo -n "$url" | /usr/bin/pbcopy
     echo "$url"
     if [ "$open_url" = true ]; then open "$url"; fi
+    exit 0
 }
 
 handle_file() {
@@ -91,11 +101,30 @@ case "$1" in
         handle_url "https://github.com/temporalio" ;;
         
     # Docs
-    "pr"|"prs"|"docs") 
+    "pr"|"prs"|"docs")
         handle_url "https://github.com/temporalio/documentation/pulls" ;;
     "branches") 
         handle_url "https://github.com/temporalio/documentation/branches" ;;
-        
+
+    # Source node files
+    "d")
+        shift; xcopen "/Users/ericasadun/docs/docs/${1}"; exit 0 ;;
+    "l")
+        shift; xcopen "/Users/ericasadun/tutorials/docs/${1}"; exit 0 ;;
+    "wd")
+        shift; url="${1}"
+        if [[ "${url}" == */index.md ]]; then url="${url%/index.md}"; fi
+        url="https://learn.temporal.io/${url}"
+        handle_url $url
+        ;;
+    "wl")
+        shift; url="${1}"
+        if [[ "${url}" == */index.md ]]; then url="${url%/index.md}"; fi
+        url="https://learn.temporal.io/${url}"
+        handle_url $url
+        ;;
+esac
+
     # Learn
     "lprs"|"learn"|"learnprs")
         handle_url "https://github.com/temporalio/temporal-learning/pulls" ;;
