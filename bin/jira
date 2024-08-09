@@ -15,6 +15,7 @@ usage() {
     echo "   $(basename "$0") grab | avail       RICE-sorted triaged bugs+tasks"
     echo "   $(basename "$0") open               RICE-sorted triage/backlist"
     echo "   $(basename "$0") issues             EDU issues (newest first)"
+    echo "   $(basename "$0") epics              EDU epics (newest first)"
     echo "   $(basename "$0") new                EDU backlog issues (newest first)"
     echo "   $(basename "$0") rice               Official RICE list"
     echo "   $(basename "$0") fridge             The ticket is in the fridge"
@@ -74,6 +75,8 @@ case "$1" in
         handle_url "https://temporalio.atlassian.net/issues/?filter=10284" true;;
     "issues") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10287" true ;;
+    "epics") 
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10317" true ;;
     "submitted"|"sent"|"created") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10306" true ;;
     "open") 

@@ -106,6 +106,9 @@ case "$1" in
     "branches") 
         handle_url "https://github.com/temporalio/documentation/branches" ;;
 
+esac
+
+case "$1" in
     # Source node files
     "d")
         shift; xcopen "/Users/ericasadun/docs/docs/${1}"; exit 0 ;;
@@ -123,7 +126,6 @@ case "$1" in
         url="https://learn.temporal.io/${url}"
         handle_url $url
         ;;
-esac
 
     # Learn
     "lprs"|"learn"|"learnprs")
@@ -136,7 +138,7 @@ esac
     # Handy
     "mr"|"mrn"|"multi-region")
         open "$HOME/docs/docs/production-deployment/cloud/multi-region.mdx" ;;
-     "mtg"|"edumtg"|"edu")
+    "mtg"|"edumtg"|"edu")
         open "https://docs.google.com/document/d/1l2IGJF34G4iFEEWOFoeoPFJ2HD--0Ee4r1vDbpNC7U4/edit" ;;
     "brian")
         open "https://docs.google.com/document/d/1eWSWgLE3GeGMDlj1fCc7DBPH0Mr4HopuMZCu8kX9Fqw/edit#heading=h.hqizhb4lcqm2" ;;
