@@ -44,7 +44,7 @@ handle_file() {
     exit 0
 }
 
-handle_open() {
+handle_web() {
     local pasteboard_url=$(pbpaste)
 
     if [ -z "$pasteboard_url" ]; then
