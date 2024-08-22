@@ -21,6 +21,7 @@ usage() {
     echo "   $(basename "$0") rice               Official RICE list"
     echo "   $(basename "$0") fridge             The ticket is in the fridge"
     echo "   $(basename "$0") submitted          Tickets I authored"
+    echo "   $(basename "$0") dash               Dashboard"
     echo "   $(basename "$0") intake             Google Intake form tickets"
     echo "   $(basename "$0") form               Google Intake form"
     echo "Options:"
@@ -45,6 +46,8 @@ fi
 open_url=true
 
 case "$1" in
+    "dash"|"dashboard")
+        handle_url "https://temporalio.atlassian.net/jira/dashboards/10054" true ;; 
     "kanban"|"k"|"board") 
         handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/boards/32?assignee=712020%3Af0bd2188-6254-4358-8fb5-3f8370599eb0" true ;;
     "fridge"|"fridged"|"iced"|"icebox") 
