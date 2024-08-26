@@ -1,0 +1,98 @@
+#!/bin/bash
+
+STATE_FILE="$HOME/.democonfig"
+
+usage() {
+    echo "Usage: $(basename "$0") {files|dock|bg|go|reset}"
+    echo "       Prepare desktop for demos"
+    exit 1
+}
+
+perform() {
+    eval "$1"
+}
+
+set_files_enabled() {
+    local enabled="$1"
+    if [ "$enabled" = true ]; then
+        echo "Showing files and drives..."
+        defaults write com.apple.finder CreateDesktop true
+        echo "files=on" > "$STATE_FILE"
+    else
+        echo "Hiding files and drives..."
+        defaults write com.apple.finder CreateDesktop false
+        echo "files=off" > "$STATE_FILE"
+    fi
+    killall Finder 2> /dev/null
+}
+
+set_dock_enabled() {
+    local enabled="$1"
+    if [ "$enabled" = true ]; then
+        echo "Showing Dock..."
+        defaults write com.apple.dock autohide -bool false
+        echo "dock=on" > "$STATE_FILE"
+    else
+        echo "Hiding Dock..."
+        defaults write com.apple.dock autohide -bool true
+        echo "dock=off" > "$STATE_FILE"
+    fi
+    killall Dock
+}
+
+set_bg_enabled() {
+    local enabled="$1"
+    if [ "$enabled" = true ]; then
+        echo "Starting Backdrop app..."
+        open /Applications/Backdrop.app
+    else
+        echo "Killing Backdrop app..."
+        killall Backdrop
+    fi
+}
+
+case "$1" in
+    files)
+        if grep -q 'files=on' "$STATE_FILE" 2> /dev/null; then
+            set_files_enabled false
+        else
+            set_files_enabled true
+        fi
+        ;;
+    dock)
+        if grep -q 'dock=on' "$STATE_FILE" 2> /dev/null; then
+            set_dock_enabled false
+        else
+            set_dock_enabled true
+        fi
+        ;;
+    bg)
+        if pgrep -x "Backdrop" > /dev/null; then
+            set_bg_enabled false
+        else
+            set_bg_enabled true
+        fi
+        ;;
+    go|on)
+        set_bg_enabled true
+        set_files_enabled false
+        set_dock_enabled false
+        ;;
+    reset|off)
+        set_bg_enabled false
+        set_files_enabled true
+        set_dock_enabled true
+        if [ -f "$STATE_FILE" ]; then
+            echo "Removing state file..."
+            rm -i "$STATE_FILE"
+            if [ $? -eq 0 ]; then
+                echo "State file removed."
+            else
+                echo "Failed to remove state file."
+            fi
+        fi
+        ;;
+    *)
+        usage
+        ;;
+esac
