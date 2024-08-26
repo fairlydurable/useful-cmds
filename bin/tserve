@@ -51,6 +51,7 @@ open_browser() {
 open_schedules() {
   if [[ -z "$python_command" ]]; then
     echo "Python is not installed. Unable to open the web browser."; return; fi
+  fetch_port
   echo "Opening web page with Python using default browser"
   "$python_command" -m webbrowser "http://localhost:$port/namespaces/default/schedules" > /dev/null
 }
