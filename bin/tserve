@@ -1,45 +1,34 @@
 #!/bin/bash
 
-# Script Name: tserve
-# Author: Erica Sadun
-# Date: 12 February 2024
-# Temporal server utility.
-
-# Globals
 script_name=$(basename "$0")
 default_port=8233
 not_running="Temporal server is not currently running"
 port=$default_port
 
-# Usage
 function usage_message() {
     echo "Usage: $script_name [--port PORT] command"
     echo "Commands:"
     echo "  start     Start Temporal Development Server"
     echo "  stop      Stop Temporal Development Server"
     echo "  check     Check if Temporal Development Server is running"
-    echo "  open      Open Temporal Development Server Web UI (requires Python)"
+    echo "  web       Open Temporal Development Server Web UI (requires Python)"
     echo "  schedules Open Temporal Development Server Schedule Web UI (requires Python)"
 }
 
-# Check if temporal is already running
 function check_process() {
     pgrep temporal >/dev/null; return $?
 }
 
-# Fetch the current port number
 fetch_port() {
     port=$(ps -eo args | grep "temporal.*--ui-port" | sed -n 's/.*--ui-port \([0-9]\{1,\}\).*/\1/p')
 }
 
-# Fetch port as string
 function port_string() {
     fetch_port
     if [ -n "$port" ]; then echo "port $port";
     else echo "an unknown port (default: $default_port)"; fi
 }
 
-# Start server/cluster in background
 start_temporal() {
   temporal_path=$(command -v temporal)  
   if [[ -z "$temporal_path" ]]; then
@@ -51,15 +40,14 @@ start_temporal() {
 
 python_command=$(command -v python3 || command -v python)
 
-# Open Browser
 open_browser() {
   if [[ -z "$python_command" ]]; then
     echo "Python is not installed. Unable to open the web browser."; return; fi
+  fetch_port
   echo "Opening web page with Python using default browser"
   "$python_command" -m webbrowser "http://localhost:$port/" > /dev/null
 }
 
-# Open Schedules
 open_schedules() {
   if [[ -z "$python_command" ]]; then
     echo "Python is not installed. Unable to open the web browser."; return; fi
@@ -67,7 +55,6 @@ open_schedules() {
   "$python_command" -m webbrowser "http://localhost:$port/namespaces/default/schedules" > /dev/null
 }
 
-# Parse flags
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --port) port="$2"; shift ;;
@@ -76,7 +63,6 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Process commands
 if [[ "$#" -eq 0 ]]; then usage_message; exit 0; fi
 if [[ "$#" -gt 1 ]]; then echo "Error: Only one command expected"; usage_message; exit 1; fi
 
