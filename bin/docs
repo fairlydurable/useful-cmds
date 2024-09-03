@@ -17,6 +17,8 @@ usage() {
     echo "   open             Resolve, and open source (if exists)"
     echo "   dir              Resolve, and open its parent directory"
     echo ""
+    echo "   cal              Open calendar"
+    echo ""
     echo "   meet             Open EDU team doc"
     echo "   brian            Open Brian meeting doc"
     echo ""
@@ -142,6 +144,8 @@ case "$1" in
         open "https://docs.google.com/document/d/1l2IGJF34G4iFEEWOFoeoPFJ2HD--0Ee4r1vDbpNC7U4/edit" ;;
     "brian")
         open "https://docs.google.com/document/d/1eWSWgLE3GeGMDlj1fCc7DBPH0Mr4HopuMZCu8kX9Fqw/edit#heading=h.hqizhb4lcqm2" ;;
+    "cal"|"calendar"|"today")
+        open "https://calendar.google.com" ;;
 
     # Open from pasteboard on web
     "web") 
