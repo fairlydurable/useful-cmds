@@ -1,0 +1,77 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: ${0##*/} <command> [<item>]"
+  echo "Configure your access, secret, region with 'aws configure'."
+  echo "Bucket and endpoint are hardcoded within this utility."
+  echo "Commands:"
+  echo "  list             - List contents of the bucket"
+  echo "  download <item>  - Download an item from the bucket"
+  echo "  upload <item>    - Upload an item to the bucket"
+  echo "  delete <item>    - Delete an item from the bucket"
+  echo "  uri <item>       - Get the public URI of an item"
+}
+
+if [[ $# -lt 1 ]]; then
+  usage
+  exit 1
+fi
+
+COMMAND="$1"
+ITEM="$2"
+
+BUCKET="audiobook-tutorial"
+ENDPOINT_URL="https://sfo3.digitaloceanspaces.com"
+
+case "$COMMAND" in
+  list)
+    aws s3 ls s3://$BUCKET --endpoint-url $ENDPOINT_URL
+    ;;
+  download)
+    if [[ -z "$ITEM" ]]; then
+      echo "Error: Specify an item to download."
+      usage
+      exit 1
+    fi
+    aws s3 cp s3://$BUCKET/$ITEM . --endpoint-url $ENDPOINT_URL
+    ;;
+  upload)
+    if [[ -z "$ITEM" ]]; then
+      echo "Error: Specify an item to upload."
+      usage
+      exit 1
+    fi
+    aws s3 cp "$ITEM" s3://$BUCKET/ --endpoint-url $ENDPOINT_URL
+    ;;
+  delete)
+    if [[ -z "$ITEM" ]]; then
+      echo "Error: Specify an item to delete."
+      usage
+      exit 1
+    fi
+    read -p "Are you sure you want to delete '$ITEM'? (y/n): " confirm
+    if [[ "$confirm" == "y" ]]; then
+      aws s3 rm s3://$BUCKET/$ITEM --endpoint-url $ENDPOINT_URL
+    else
+      echo "Delete action canceled."
+    fi
+    ;;
+  uri)
+    if [[ -z "$ITEM" ]]; then
+      echo "Error: Specify an item to get the URI."
+      usage
+      exit 1
+    fi
+    if aws s3api head-object --bucket "$BUCKET" --key "$ITEM" --endpoint-url $ENDPOINT_URL > /dev/null 2>&1; then
+      PUBLIC_URI="https://$BUCKET.sfo3.digitaloceanspaces.com/$ITEM"
+      echo "Public URI: $PUBLIC_URI"
+    else
+      echo "Error: Item '$ITEM' does not exist in bucket '$BUCKET'."
+    fi
+    ;;
+  *)
+    echo "Error: Unknown command '$COMMAND'."
+    usage
+    exit 1
+    ;;
+esac
