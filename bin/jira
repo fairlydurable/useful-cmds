@@ -5,8 +5,8 @@ usage() {
     echo "   $(basename "$0") 1181 1659 2286     Open tickets"
     echo "   $(basename "$0") kanban             Jira Kanban board"
     echo "   $(basename "$0") next               What's NEXT to do"
-    echo "   $(basename "$0") arriving           My next sprint work"
     echo "   $(basename "$0") me                 Jira tasks page"
+    echo "   $(basename "$0") todo               Triaged items meant for me"
     echo "   $(basename "$0") by name            Submitted by-ordered by date"
     echo "   $(basename "$0") docs               Brian's docs list"
     echo "   $(basename "$0") wont               My won't-do items"
@@ -53,9 +53,9 @@ case "$1" in
         handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/boards/32?assignee=712020%3Af0bd2188-6254-4358-8fb5-3f8370599eb0" true ;;
     "fridge"|"fridged"|"iced"|"icebox") 
         handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/issues/?filter=10303" true ;;
-    "me") 
+    "me"|"erica") 
         handle_url "https://temporalio.atlassian.net/jira/your-work" true ;;
-    "arriving"|"a"|"ns"|"dothis"|"erica") 
+    "todo") 
         handle_url "https://temporalio.atlassian.net/issues/?filter=10316" true ;;
     "by")
         if [ $# -ne 2 ]; then usage; fi
