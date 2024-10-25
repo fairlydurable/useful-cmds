@@ -8,6 +8,7 @@ usage() {
     echo "   $(basename "$0") me                 Jira tasks page"
     echo "   $(basename "$0") todo               Triaged items meant for me"
     echo "   $(basename "$0") by name            Submitted by-ordered by date"
+    echo "   $(basename "$0") find topic         Search issues by topic"
     echo "   $(basename "$0") docs               Brian's docs list"
     echo "   $(basename "$0") wont               My won't-do items"
     echo "   $(basename "$0") done               My done items"
@@ -40,6 +41,19 @@ handle_url() {
     if [ "$exit_after" = true ]; then exit 0; fi
 }
 
+url_encode() {
+    local encoded=""
+    local string="$1"
+    for (( i=0; i<${#string}; i++ )); do
+        local c="${string:i:1}"
+        case "$c" in
+            [a-zA-Z0-9.~_-]) encoded+="$c" ;;  # safe characters
+            *) encoded+="$(printf '%%%02X' "'$c")" ;;  # URL encode
+        esac
+    done
+    echo "$encoded"
+}
+
 if [ $# -eq 0 ]; then
     usage
 fi
@@ -60,7 +74,12 @@ case "$1" in
     "by")
         if [ $# -ne 2 ]; then usage; fi
         handle_url "https://temporalio.atlassian.net/issues/?jql=description%20~%20%22"$2"%22%20AND%20project%20%3D%20EDU%20ORDER%20BY%20created%20DESC" true ;;
-    "next"|"do") 
+    "find"|"search")
+        if [ $# -lt 2 ]; then usage; fi
+        search_phrase="${@:2}"
+        search_term=$(url_encode "$search_phrase")
+        handle_url "https://temporalio.atlassian.net/issues/?filter=10287&jql=project%20%3D%20EDU%20AND%20text%20~%20%22$search_term%22%20ORDER%20BY%20created%20DESC" true ;;
+    "next"|"do")
         handle_url "https://temporalio.atlassian.net/jira/dashboards/10042" true ;;
     "docs")
         handle_url "https://temporalio.atlassian.net/issues/?filter=10298" true ;;
