@@ -11,7 +11,7 @@ PR_NUMBER=$(echo "$GITHUB_URL" | sed -E 's|https://github.com/.+/pull/([0-9]+)|\
 PR_TITLE=$(curl -s -H "Accept: application/vnd.github.v3+json" \
   "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER" | jq -r .title)
 
-ENCODED_SUMMARY=$(echo "[Docs] External pull request: $PR_TITLE" | jq -sRr @uri)
+ENCODED_SUMMARY=$(echo "Support PR: $PR_TITLE" | jq -sRr @uri)
 ENCODED_DESCRIPTION=$(echo "Manage, review, and merge pull request. GitHub URL: $GITHUB_URL" | jq -sRr @uri)
 
 CREATE_URL="$JIRA_URL/secure/CreateIssueDetails!init.jspa?pid=10031&issuetype=$ISSUE_TYPE&summary=$ENCODED_SUMMARY&description=$ENCODED_DESCRIPTION&labels=Documentation&labels=content&labels=update&labels=support&labels=sdk-coverage&priority=3"
