@@ -2,18 +2,72 @@
 
 JIRA_URL="https://temporalio.atlassian.net"
 PROJECT_KEY="EDU"
-ISSUE_TYPE="10002"  # Task 10002
+ISSUE_TYPE="10002"
 
-GITHUB_URL="$1"
-REPO=$(echo "$GITHUB_URL" | sed -E 's|https://github.com/([^/]+/[^/]+)/pull/.*|\1|')
-PR_NUMBER=$(echo "$GITHUB_URL" | sed -E 's|https://github.com/.+/pull/([0-9]+)|\1|')
+function usage {
+  echo "Usage: $0 [command] [arguments]"
+  echo ""
+  echo "Commands:"
+  echo "  pr <GitHub PR URL>    Create a Jira ticket for a pull request"
+  echo "  new                   Create a Jira ticket without arguments"
+  echo "  help                  Show this help message"
+}
 
-PR_TITLE=$(curl -s -H "Accept: application/vnd.github.v3+json" \
-  "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER" | jq -r .title)
+function create_pr_ticket {
+  GITHUB_URL="$1"
+  REPO=$(echo "$GITHUB_URL" | sed -E 's|https://github.com/([^/]+/[^/]+)/pull/.*|\1|')
+  PR_NUMBER=$(echo "$GITHUB_URL" | sed -E 's|https://github.com/.+/pull/([0-9]+)|\1|')
 
-ENCODED_SUMMARY=$(echo "Support PR: $PR_TITLE" | jq -sRr @uri)
-ENCODED_DESCRIPTION=$(echo "Manage, review, and merge pull request. GitHub URL: $GITHUB_URL" | jq -sRr @uri)
+  PR_DATA=$(curl -s -H "Accept: application/vnd.github.v3+json" \
+    "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER")
 
-CREATE_URL="$JIRA_URL/secure/CreateIssueDetails!init.jspa?pid=10031&issuetype=$ISSUE_TYPE&summary=$ENCODED_SUMMARY&description=$ENCODED_DESCRIPTION&labels=Documentation&labels=content&labels=update&labels=support&labels=sdk-coverage&priority=3"
+  PR_TITLE=$(echo "$PR_DATA" | jq -r .title)
+  PR_DESCRIPTION=$(echo "$PR_DATA" | jq -r .body)
 
-open "$CREATE_URL"
+  ENCODED_SUMMARY=$(echo "Support PR: $PR_TITLE" | jq -sRr @uri)
+  ENCODED_DESCRIPTION=$(echo "PR Description: $PR_DESCRIPTION. GitHub URL: $GITHUB_URL" | jq -sRr @uri)
+
+  CREATE_URL="$JIRA_URL/secure/CreateIssueDetails!init.jspa?pid=10031&issuetype=$ISSUE_TYPE&summary=$ENCODED_SUMMARY&description=$ENCODED_DESCRIPTION&labels=Documentation&labels=content&labels=update&labels=support&labels=sdk-coverage&priority=3"
+
+  open "$CREATE_URL"
+}
+
+function create_new_ticket {
+  # Copy PR ticket creation code here for 'new' command
+  ENCODED_SUMMARY=$(echo "New Ticket" | jq -sRr @uri)
+  ENCODED_DESCRIPTION=$(echo "Details: TBD" | jq -sRr @uri)
+
+  CREATE_URL="$JIRA_URL/secure/CreateIssueDetails!init.jspa?pid=10031&issuetype=$ISSUE_TYPE&summary=$ENCODED_SUMMARY&description=$ENCODED_DESCRIPTION&priority=3"
+
+  open "$CREATE_URL"
+}
+
+if [ $# -eq 0 ]; then
+  usage
+  exit 1
+fi
+
+COMMAND="$1"
+shift
+
+case "$COMMAND" in
+  pr)
+    if [ $# -ne 1 ]; then
+      echo "Error: Missing GitHub PR URL"
+      usage
+      exit 1
+    fi
+    create_pr_ticket "$1"
+    ;;
+  new)
+    create_new_ticket
+    ;;
+  help)
+    usage
+    ;;
+  *)
+    echo "Error: Unknown command '$COMMAND'"
+    usage
+    exit 1
+    ;;
+esac

@@ -4,28 +4,37 @@ usage() {
     echo "Usage: $(basename "$0") [-u|--url] <ticket> [<ticket> ...] | <special>"
     echo "   $(basename "$0") 1181 1659 2286     Open tickets"
     echo "   $(basename "$0") kanban             Jira Kanban board"
-    echo "   $(basename "$0") next               What's NEXT to do"
+    echo "   $(basename "$0") dash               Dashboard"
     echo "   $(basename "$0") me                 Jira tasks page"
-    echo "   $(basename "$0") todo               Triaged items meant for me"
+
     echo "   $(basename "$0") by name            Submitted by-ordered by date"
     echo "   $(basename "$0") find topic         Search issues by topic"
-    echo "   $(basename "$0") docs               Brian's docs list"
+
     echo "   $(basename "$0") wont               My won't-do items"
     echo "   $(basename "$0") done               My done items"
     echo "   $(basename "$0") blocked            My blocked tickets"
-    echo "   $(basename "$0") bugs               RICE-sorted triaged bugs"
-    echo "   $(basename "$0") tasks              RICE-sorted triaged tasks"
-    echo "   $(basename "$0") grab | avail       RICE-sorted triaged bugs+tasks"
-    echo "   $(basename "$0") open               RICE-sorted triage/backlist"
-    echo "   $(basename "$0") issues             EDU issues (newest first)"
-    echo "   $(basename "$0") epics              EDU epics (newest first)"
-    echo "   $(basename "$0") new                EDU backlog issues (newest first)"
-    echo "   $(basename "$0") rice               Official RICE list"
-    echo "   $(basename "$0") fridge             The ticket is in the fridge"
-    echo "   $(basename "$0") submitted          Tickets I authored"
-    echo "   $(basename "$0") dash               Dashboard"
+
     echo "   $(basename "$0") intake             Google Intake form tickets"
     echo "   $(basename "$0") form               Google Intake form"
+
+    echo "   $(basename "$0") issues             EDU issues (newest first)"
+    echo "   $(basename "$0") epics              EDU epics (newest first)"
+
+    echo "   $(basename "$0") submitted          Tickets I authored"
+    echo "   $(basename "$0") fridge             The ticket is in the fridge"
+
+    echo "   $(basename "$0") asana              Asana"
+
+#    echo "   $(basename "$0") next               What's NEXT to do"
+#    echo "   $(basename "$0") todo               Triaged items meant for me"
+#    echo "   $(basename "$0") docs               Brian's docs list"
+#    echo "   $(basename "$0") bugs               RICE-sorted triaged bugs"
+#    echo "   $(basename "$0") tasks              RICE-sorted triaged tasks"
+#    echo "   $(basename "$0") grab | avail       RICE-sorted triaged bugs+tasks"
+#    echo "   $(basename "$0") open               RICE-sorted triage/backlist"
+#    echo "   $(basename "$0") new                EDU backlog issues (newest first)"
+#    echo "   $(basename "$0") rice               Official RICE list"
+
     echo "Options:"
     echo "  -u, --url         Echo the URL instead of opening it"
     echo "  -h, --help        This message"
@@ -65,6 +74,8 @@ case "$1" in
         handle_url "https://temporalio.atlassian.net/jira/dashboards/10054" true ;; 
     "kanban"|"k"|"board") 
         handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/boards/32?assignee=712020%3Af0bd2188-6254-4358-8fb5-3f8370599eb0" true ;;
+    "asana"|"a"|"ass") 
+        handle_url "https://app.asana.com/0/1208525025249392/1208525025249405" true ;;
     "fridge"|"fridged"|"iced"|"icebox") 
         handle_url "https://temporalio.atlassian.net/jira/software/c/projects/EDU/issues/?filter=10303" true ;;
     "me"|"erica") 

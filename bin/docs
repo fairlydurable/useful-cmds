@@ -98,20 +98,21 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "$1" in
-    # Temporal
     "temp"|"temporal"|"t") 
         handle_url "https://github.com/temporalio" ;;
         
-    # Docs
     "pr"|"prs"|"docs")
-        handle_url "https://github.com/temporalio/documentation/pulls" ;;
+        if [[ "$2" =~ ^[0-9]{3,4}$ ]]; then
+            handle_url "https://github.com/temporalio/documentation/pull/$2"
+        else
+            handle_url "https://github.com/temporalio/documentation/pulls"
+        fi
+        ;;
     "branches") 
         handle_url "https://github.com/temporalio/documentation/branches" ;;
-
 esac
 
 case "$1" in
-    # Source node files
     "d")
         shift; xcopen "/Users/ericasadun/docs/docs/${1}"; exit 0 ;;
     "l")
@@ -129,15 +130,18 @@ case "$1" in
         handle_url $url
         ;;
 
-    # Learn
     "lprs"|"learn"|"learnprs")
-        handle_url "https://github.com/temporalio/temporal-learning/pulls" ;;
+        if [[ "$2" =~ ^[0-9]{3,4}$ ]]; then
+            handle_url "https://github.com/temporalio/temporal-learning/pull/$2"
+        else
+            handle_url "https://github.com/temporalio/temporal-learning/pulls"
+        fi
+        ;;
     "lbranches")
         handle_url "https://github.com/temporalio/temporal-learning/branches" ;;
     "tutorials"|"tutorial"|"tut")
         handle_url "https://temporalio.atlassian.net/browse/LAUNCH-3667" ;;
 
-    # Handy
     "mr"|"mrn"|"multi-region")
         open "$HOME/docs/docs/production-deployment/cloud/multi-region.mdx" ;;
     "mtg"|"edumtg"|"edu")
@@ -147,15 +151,12 @@ case "$1" in
     "cal"|"calendar"|"today")
         open "https://calendar.google.com" ;;
 
-    # Open from pasteboard on web
     "web") 
         handle_web ;;
     
-    # Open from pasteboard
     "open") 
         handle_open ;;
-
-    # Directory from pasteboard
+    
     "dir")
         handle_dir ;;
         
