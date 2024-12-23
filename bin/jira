@@ -109,7 +109,7 @@ case "$1" in
         echo -n "https://t.mp/edu-request" | pbcopy
         echo "https://t.mp/edu-request"; exit 0 ;;
     "intake") 
-	handle_url "https://temporalio.atlassian.net/jira/dashboards/10154" false 
+	handle_url "https://temporalio.atlassian.net/jira/dashboards/10154" true;
 #        handle_url "https://temporalio.atlassian.net/issues/?filter=10270" true 
     ;;
     "new")
