@@ -1,0 +1,279 @@
+#!/bin/bash
+
+# Configuration for timing and intervals
+MIN_PROMPT_WAIT=120   # Minimum wait time before asking for an answer (in seconds)
+MAX_PROMPT_WAIT=180   # Maximum wait time before asking for an answer (in seconds)
+MIN_REPEAT_INTERVAL=120  # Minimum wait time before repeating the loop (in seconds)
+MAX_REPEAT_INTERVAL=180  # Maximum wait time before repeating the loop (in seconds)
+
+# Seed the random number generator
+RANDOM=$(date +%s)
+
+# Corpus of clues and answers
+declare -a CLUES=(
+    "small, hops, marsupial"  # kangaroo
+    "round, yellow, fruit"  # lemon
+    "large, gray, with big ears"  # elephant
+    "hot, spicy, red"  # chili pepper
+    "soft, white, fluffy, bunny"  # bunny
+    "green, tall, with leaves"  # tree
+    "metal, flat, used for frying"  # frying pan
+    "long, furry, tail, squirrel"  # squirrel
+    "fast, spotted, big cat"  # cheetah
+    "small, buzzing, makes honey"  # bee
+
+    "soft, fluffy, white, in the sky"  # cloud
+    "small, colorful, wings, found in gardens"  # butterfly
+    "round, small, red, on vines"  # cherry
+    "yellow, curved, tropical fruit"  # banana
+    "round, green, used for salad"  # cucumber
+    "big, orange, carved, Halloween"  # pumpkin
+    "long, shiny, sharp, used for cutting"  # knife
+    "furry, big, loud, found in forests, howls"  # wolf
+    "hard, brown, edible, falls from trees"  # nut
+    "long, flexible, used to tie things, often found in garages"  # rope
+
+    "small, furry, hops, in a pouch"  # kangaroo
+    "round, green, sour"  # lemon
+    "tall, strong, wooden, in the forest"  # tree
+    "shiny, metal, for eating, long handle"  # fork
+    "round, orange, used for carving"  # pumpkin
+    "small, soft, furry, four legs, small ears"  # kitten
+    "fast, running, desert, long legs"  # camel
+    "sweet, red, juicy, summer fruit"  # strawberry
+    "big, red, used for transporting goods"  # truck
+    "small, round, black, in the sky, night"  # moon
+
+    "round, fluffy, white, floats in the sky"  # cloud
+    "small, colorful, found in gardens, fluttering wings"  # butterfly
+    "round, small, red, on vines"  # cherry
+    "long, yellow, tropical fruit, curved"  # banana
+    "round, green, used for salad, often in sandwiches"  # cucumber
+    "big, orange, used for Halloween, carved"  # pumpkin
+    "long, shiny, sharp, used for cutting"  # knife
+    "furry, big, loud, found in forests, howls"  # wolf
+    "hard, brown, edible, falls from trees"  # nut
+    "long, flexible, used to tie things, often found in garages"  # rope
+
+    "round, green, sour"  # lime
+    "small, furry, hops, with long ears"  # rabbit
+    "round, small, green, in the garden"  # pea
+    "tall, evergreen, found in forests"  # pine tree
+    "sweet, tropical, yellow, on a tree"  # mango
+    "small, furry, likes cheese"  # mouse
+    "brown, hairy, tropical nut"  # coconut
+    "shiny, yellow, a favorite breakfast"  # egg
+    "slimy, green, found in ponds"  # frog
+    "soft, round, orange, in a patch"  # pumpkin
+
+    "sharp, metal, cuts paper"  # scissors
+    "large, round, used for cooking"  # pot
+    "fast, spotted, jungle cat"  # leopard
+    "sweet, round, tart, grows on vines"  # blackberry
+    "small, green, often used in salads"  # cucumber
+    "hot, black, drink, morning"  # coffee
+    "tall, green, often Christmas"  # tree
+    "delicious, sweet, on a cone"  # ice cream
+    "round, black, in the night sky"  # moon
+    "brown, chewy, often in bars"  # granola
+
+    "small, yellow, cheerful, in gardens"  # sunflower
+    "fast, yellow, on the ground"  # cheetah
+    "long, flexible, often in gardens"  # hose
+    "small, furry, pet, with whiskers"  # kitten
+    "green, leafy, makes a salad"  # lettuce
+    "hot, sweet, chocolate, on a stick"  # marshmallow
+    "round, small, white, in the sky"  # moon
+    "furry, purrs, often a pet"  # cat
+    "green, fragrant, in the kitchen"  # herb
+    "red, sweet, on a vine"  # strawberry
+
+    "round, yellow, on a tree"  # lemon
+    "cold, frozen, dessert"  # popsicle
+    "small, colorful, in gardens"  # flower
+    "hard, wood, for making furniture"  # oak
+    "brown, crispy, morning food"  # toast
+    "green, used in salads, crunchy"  # lettuce
+    "yellow, bright, a bird's sound"  # canary
+    "purple, flower, in the spring"  # lilac
+    "hot, spicy, in tacos"  # jalapeno
+    "green, used for guacamole"  # avocado
+
+    "small, green, often eaten in salads"  # pea
+    "big, gray, in the zoo"  # elephant
+    "circular, orange, grows on trees"  # orange
+    "white, fluffy, sky, water vapor"  # cloud
+    "hard, crunchy, green, healthy"  # apple
+    "spherical, yellow, tropical"  # pineapple
+    "long, soft, a pet's tail"  # fur
+    "round, red, used in sauce"  # tomato
+    "round, orange, vegetable"  # pumpkin
+    "large, white, bird, in the sky"  # swan
+
+    "wooden, tall, provides shade"  # tree
+    "small, spotted, climbing, animal"  # monkey
+    "long, yellow, tropical, curved"  # banana
+    "round, soft, edible, comes from trees"  # apple
+    "white, creamy, used in food"  # cheese
+    "round, red, grows on vines"  # tomato
+    "big, gray, tall, has tusks"  # elephant
+    "small, black, crawling, in the kitchen"  # ant
+    "furry, loves cheese, small"  # mouse
+    "slimy, green, found in ponds"  # frog
+
+    "small, furry, long ears, hops"  # rabbit
+    "bright, yellow, warm, sun"  # sun
+    "large, gray, with big ears"  # elephant
+    "sharp, metal, used to cut"  # knife
+    "sweet, yellow, tropical, fruit"  # banana
+    "small, soft, lives in a burrow"  # hamster
+    "green, used in guacamole"  # avocado
+    "spiny, green, tropical"  # cactus
+    "large, spotted, jungle cat"  # leopard
+    "shiny, metal, cooking utensil"  # pot
+
+
+    "small, red, found in pies"  # cherry
+    "small, green, used in salads"  # cucumber
+    "round, yellow, sour"  # lemon
+    "bright, orange, used in jack-o'-lanterns"  # pumpkin
+    "long, flexible, used to tie"  # rope
+    "round, orange, fruit, juice"  # orange
+    "green, leafy, vegetable"  # spinach
+    "round, red, delicious, fruit"  # apple
+    "sweet, white, sticky, in a jar"  # honey
+    "spiky, yellow, tropical fruit"  # pineapple
+
+    "yellow, sour, citrus"  # lime
+    "small, red, used in sauce"  # tomato
+    "green, growing, tree"  # oak
+    "green, used for salads, crunchy"  # lettuce
+    "large, brown, strong"  # bear
+    "hard, crunchy, nut"  # walnut
+    "small, white, sweet, used in desserts"  # sugar
+    "furry, soft, pet, purrs"  # cat
+    "yellow, flying, bird"  # canary
+    "round, soft, edible, vegetable"  # pumpkin
+
+    "shiny, round, used in jewelry"  # diamond
+    "green, fragrant, herb"  # mint
+    "long, yellow, curved, tropical"  # banana
+    "small, sharp, used for cutting paper"  # scissors
+    "large, fast, used for transportation"  # airplane
+    "slimy, green, amphibian"  # frog
+    "cold, icy, winter precipitation"  # snow
+    "large, round, colorful, in the sky"  # balloon
+    "hard, round, edible, in chocolate"  # nut
+    "spiky, green, in the desert"  # cactus
+
+    "sweet, dark, bitter, in desserts"  # chocolate
+    "round, red, on a vine"  # cherry
+    "green, leafy, vegetable, used in salads"  # kale
+    "spicy, used in tacos"  # jalapeno
+    "soft, wet, tropical fruit"  # coconut
+    "crunchy, green, healthy"  # cucumber
+    "small, quick, lives in a burrow"  # rabbit
+    "green, citrus, sour"  # lime
+    "round, juicy, tropical fruit"  # pineapple
+    "yellow, tall, fruit, sweet"  # banana
+
+    "large, gray, in zoos"  # elephant
+    "round, red, grows on vines"  # tomato
+    "green, growing, vegetable"  # lettuce
+    "small, furry, hops, in a pouch"  # kangaroo
+    "round, yellow, tropical fruit"  # lemon
+    "shiny, metal, for cooking, long handle"  # spatula
+    "small, round, red, fruit"  # strawberry
+    "bitter, dark, sweet, in bars"  # chocolate
+    "used for carving, orange, seasonal"  # pumpkin
+    "fuzzy, green, used for cleaning"  # sponge
+
+    "small, four legs, lives in burrows"  # hamster
+    "round, yellow, big, in the sky"  # sun
+    "tall, strong, in forests"  # tree
+    "small, soft, furry, jumps"  # bunny
+    "sweet, red, juicy, grows on vines"  # grape
+    "green, edible, in salads"  # spinach
+    "bouncy, yellow, used for sports"  # tennis ball
+    "blue, salty, large body of water"  # ocean
+    "sharp, pointy, used to cut paper"  # scissors
+    "delicious, sweet, on a cone"  # ice cream
+
+    # Batch 8
+    "round, green, used for salads"  # cucumber
+    "long, yellow, tropical, sweet"  # banana
+    "hard, brown, edible, falls from trees"  # nut
+    "soft, fluffy, animal"  # bunny
+    "green, leafy, vegetable"  # spinach
+    "sharp, used for cutting, small"  # knife
+    "round, red, fruit"  # tomato
+    "small, furry, hops, in a pouch"  # kangaroo
+    "round, green, used in salads"  # cucumber
+    "yellow, bitter, citrus"  # lemon
+
+    "small, black, crawls on the ground"  # ant
+    "sweet, red, summer fruit"  # strawberry
+    "green, leafy, vegetable"  # lettuce
+    "round, yellow, tropical fruit"  # pineapple
+    "large, gray, with tusks"  # elephant
+    "brown, edible, in a shell"  # walnut
+    "green, tropical, small fruit"  # kiwi
+    "round, red, in a patch"  # pumpkin
+    "shiny, metal, used in kitchens"  # pan
+    "sweet, cold, frozen dessert"  # ice cream
+
+    "long, soft, furry tail"  # squirrel
+    "sweet, yellow, tropical fruit"  # mango
+    "hard, brown, edible, from trees"  # coconut
+    "used for cleaning, small, soft"  # sponge
+    "green, sour, fruit"  # lime
+    "yellow, bitter, sour"  # lemon
+    "small, fluffy, four legs"  # kitten
+    "round, red, sweet"  # apple
+    "orange, round, citrus"  # orange
+    "small, furry, quick"  # hamster
+)
+
+
+# Function to generate random numbers within a range
+random_wait() {
+    local min=$1
+    local max=$2
+    echo $((RANDOM % (max - min + 1) + min))
+}
+
+# Shuffle the array using pure Bash
+shuffle() {
+    local i tmp size max rand
+    size=${#CLUES[@]}
+    max=$(( 32768 / size * size ))  # Avoid bias from `$RANDOM`
+    
+    for ((i = size - 1; i > 0; i--)); do
+        rand=$((RANDOM % (i + 1)))
+        tmp=${CLUES[i]}
+        CLUES[i]=${CLUES[rand]}
+        CLUES[rand]=$tmp
+    done
+}
+
+# Shuffle the CLUES array
+shuffle
+
+# Main loop - iterate over the shuffled array
+for CLUE in "${CLUES[@]}"; do
+    # Speak the clue
+    say "$CLUE"
+    
+    # Wait for a random period between MIN_PROMPT_WAIT and MAX_PROMPT_WAIT
+    PROMPT_WAIT=$(random_wait $MIN_PROMPT_WAIT $MAX_PROMPT_WAIT)
+    sleep $PROMPT_WAIT
+    
+    # Prompt for the answer
+    say "What word was it?"
+    
+    # Wait for a random repeat interval before next clue
+    REPEAT_WAIT=$(random_wait $MIN_REPEAT_INTERVAL $MAX_REPEAT_INTERVAL)
+    sleep $REPEAT_WAIT
+done
+
+say "All clues done."
