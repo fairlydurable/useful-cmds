@@ -3,7 +3,9 @@
 usage() {
     echo "Usage: $(basename "$0") "
     echo "   prs              Open docs PRs (docs docs)"
+    echo "   pr #             Open docs PR #"
     echo "   lprs             Open learn PRs (docs learn)"
+    echo "   lpr #            Open learn PR #"
     echo "   branches         Open docs branches"
     echo "   lbranches        Open learn branches"
     echo "   temp             Open main temporal home on GitHub"
@@ -108,6 +110,7 @@ case "$1" in
             handle_url "https://github.com/temporalio/documentation/pulls"
         fi
         ;;
+
     "branches") 
         handle_url "https://github.com/temporalio/documentation/branches" ;;
 esac
@@ -130,7 +133,7 @@ case "$1" in
         handle_url $url
         ;;
 
-    "lprs"|"learn"|"learnprs")
+    "lpr"|"lprs"|"learn"|"learnprs")
         if [[ "$2" =~ ^[0-9]{3,4}$ ]]; then
             handle_url "https://github.com/temporalio/temporal-learning/pull/$2"
         else

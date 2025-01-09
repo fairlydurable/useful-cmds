@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Get the current working directory
+DIR=$(pwd)
+
+# Loop through all the files ending in '_corrected.extension'
+for corrected_file in "$DIR"/*_corrected.*; do
+    # Extract the base name by removing '_corrected'
+    base_file="${corrected_file/_corrected/}"
+
+    # Check if the original file exists
+    if [ -f "$base_file" ]; then
+        # Run diff on the pair (original and corrected)
+        if ! diff -q "$base_file" "$corrected_file" > /dev/null; then
+            # If there are differences, skip removing
+            echo "Changes detected: Keeping $corrected_file"
+        else
+            # If no differences, remove the corrected file
+            echo "No changes: Removing $corrected_file"
+            rm "$corrected_file"
+        fi
+    else
+        echo "Original file $base_file does not exist for $corrected_file"
+    fi
+done
