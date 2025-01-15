@@ -11,6 +11,149 @@ RANDOM=$(date +%s)
 
 # Corpus of clues and answers
 declare -a CLUES=(
+    "yellow, hard, tropical, used in drinks"  # coconut
+    "small, sweet, in desserts, often dried"  # raisin
+    "fast, sleek, sports vehicle"  # car
+    "large, gray, in Africa, has tusks"  # elephant
+    "green, tall, thick, with leaves"  # bamboo
+    "sharp, pointy, on a hedgehog"  # quill
+    "small, colorful, in a garden, buzzing"  # bee
+    "delicious, tart, used in pies"  # cherry
+    "spiky, green, tropical fruit"  # pineapple
+    "soft, green, edible, in sandwiches"  # lettuce
+
+    "round, sweet, tropical fruit"  # mango
+    "tropical, green, large, used in cocktails"  # coconut
+    "white, small, used in desserts"  # sugar
+    "round, red, edible, grows on vines"  # tomato
+    "green, grows in the ground, used in salads"  # onion
+    "hard, yellow, used in cooking"  # corn
+    "round, orange, fruit"  # pumpkin
+    "small, furry, hops, often a pet"  # rabbit
+    "green, small, often used in guacamole"  # avocado
+    "small, sweet, grows on bushes"  # blueberry
+
+    "round, red, in a garden"  # strawberry
+    "long, yellow, tropical, curved fruit"  # banana
+    "hard, brown, edible, from a tree"  # nut
+    "sweet, orange, tropical fruit"  # papaya
+    "round, soft, yellow, fruit"  # lemon
+    "bitter, green, used in cocktails"  # lime
+    "round, green, tropical, used in cooking"  # plantain
+    "sharp, metal, used to slice"  # knife
+    "small, red, used for making jam"  # raspberry
+    "sweet, green, tropical fruit"  # kiwi
+
+    "tall, green, with leaves"  # tree
+    "round, red, fruit, grows on vines"  # tomato
+    "yellow, sour, used in drinks"  # lime
+    "spiny, tropical, green fruit"  # jackfruit
+    "soft, fluffy, edible, often in pies"  # marshmallow
+    "delicious, round, often in chocolate"  # cherry
+    "round, yellow, fruit"  # lemon
+    "long, yellow, used in smoothies"  # banana
+    "green, bitter, used in salads"  # arugula
+    "red, juicy, tropical fruit"  # watermelon
+
+    "round, orange, used for decoration"  # pumpkin
+    "green, tart, used in pies"  # lime
+    "small, green, in salads"  # cucumber
+    "tall, furry, found in forests"  # bear
+    "sweet, yellow, on a tree"  # mango
+    "bitter, yellow, used in drinks"  # lemon
+    "green, bitter, often in drinks"  # mint
+    "hard, brown, found in chocolate"  # hazelnut
+    "small, red, used in salads"  # tomato
+    "yellow, tropical, used in cakes"  # pineapple
+
+    "round, sweet, red, grows on vines"  # cherry
+    "green, growing, edible"  # spinach
+    "yellow, tropical, sweet fruit"  # banana
+    "hard, brown, edible, grows in forests"  # walnut
+    "small, green, used in salads"  # cucumber
+    "sharp, cuts, kitchen tool"  # knife
+    "round, red, used in sauce"  # tomato
+    "small, tart, in desserts"  # raspberry
+    "yellow, bitter, citrus"  # lemon
+    "round, sweet, tropical fruit"  # pineapple
+
+    "long, yellow, tropical fruit"  # banana
+    "small, furry, hops, in a pouch"  # kangaroo
+    "round, small, green, edible"  # melon
+    "green, used in guacamole"  # avocado
+    "round, green, used in salads"  # cucumber
+    "sweet, sticky, in a jar"  # honey
+    "sharp, used to cut food"  # knife
+    "sweet, red, often eaten in desserts"  # strawberry
+    "round, green, used in drinks"  # lime
+    "yellow, sour, used in drinks"  # lemon
+
+    "small, furry, loves cheese"  # mouse
+    "round, red, used in sauce"  # tomato
+    "sweet, tart, small fruit"  # raspberry
+    "green, bitter, used in cocktails"  # lime
+    "small, colorful, insect"  # butterfly
+    "soft, fluffy, pet, purrs"  # kitten
+    "round, green, on a vine"  # melon
+    "green, leafy, vegetable"  # spinach
+    "round, yellow, fruit"  # lemon
+    "yellow, small, tropical fruit"  # banana
+
+    "small, furry, often a pet"  # hamster
+    "yellow, soft, tropical fruit"  # mango
+    "large, orange, used for carving"  # pumpkin
+    "small, sweet, on a vine"  # strawberry
+    "bitter, green, used in drinks"  # lime
+    "green, small, crunchy, used in salads"  # lettuce
+    "round, soft, green, tropical"  # avocado
+    "sweet, juicy, tropical fruit"  # pineapple
+    "green, tart, used in pies"  # lime
+    "round, yellow, used in pies"  # lemon
+
+    "round, red, used in cooking"  # tomato
+    "green, tropical, used for chips"  # plantain
+    "yellow, tropical, sweet"  # pineapple
+    "green, crunchy, in salads"  # cucumber
+    "sweet, red, used in sauces"  # raspberry
+    "small, round, red, used in pie"  # cherry
+    "yellow, in the sky, warm"  # sun
+    "green, sour, on trees"  # lime
+    "delicious, sweet, in pies"  # apple
+    "round, yellow, sour"  # lemon
+
+    "green, in the garden, leafy"  # kale
+    "yellow, sweet, tropical"  # mango
+    "hard, brown, edible"  # hazelnut
+    "spiny, green, in the desert"  # cactus
+    "round, small, red, on vines"  # tomato
+    "soft, furry, small, pet"  # kitten
+    "sweet, sticky, in a jar"  # honey
+    "round, red, in pies"  # cherry
+    "green, sour, used in cocktails"  # lime
+    "yellow, bitter, in drinks"  # lemon
+
+    "round, orange, used in pies"  # pumpkin
+    "green, small, bitter"  # mint
+    "round, yellow, soft"  # lemon
+    "small, red, used in pies"  # strawberry
+    "round, sweet, used in baking"  # raspberry
+    "green, tall, with leaves"  # tree
+    "yellow, tropical, soft"  # pineapple
+    "small, furry, hops in gardens"  # rabbit
+    "green, tart, used in baking"  # lime
+    "soft, sweet, yellow, in the sky"  # sun
+
+    "large, brown, furry"  # bear
+    "round, soft, green"  # melon
+    "small, round, red, used in pies"  # cherry
+    "sweet, tart, used in desserts"  # raspberry
+    "green, used for guacamole"  # avocado
+    "bitter, green, in salads"  # kale
+    "green, round, small"  # cucumber
+    "yellow, sour, used for pies"  # lemon
+    "small, red, on a vine"  # tomato
+    "round, orange, used for Halloween"  # pumpkin
+
     "small, hops, marsupial"  # kangaroo
     "round, yellow, fruit"  # lemon
     "large, gray, with big ears"  # elephant
@@ -69,12 +212,12 @@ declare -a CLUES=(
     "sharp, metal, cuts paper"  # scissors
     "large, round, used for cooking"  # pot
     "fast, spotted, jungle cat"  # leopard
-    "sweet, round, tart, grows on vines"  # blackberry
+    "sweet, bumpy, tart, grows on vines"  # blackberry
     "small, green, often used in salads"  # cucumber
     "hot, black, drink, morning"  # coffee
     "tall, green, often Christmas"  # tree
     "delicious, sweet, on a cone"  # ice cream
-    "round, black, in the night sky"  # moon
+    "round, white, in the night sky"  # moon
     "brown, chewy, often in bars"  # granola
 
     "small, yellow, cheerful, in gardens"  # sunflower
