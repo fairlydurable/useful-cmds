@@ -1,0 +1,15 @@
+#!/bin/bash
+
+BRANCH_NAME=$(git thisbranch)
+BRANCH_POINT=$(git merge-base main $(git thisbranch))
+echo "$BRANCH_NAME branch point: $BRANCH_POINT"
+
+DIFF=$(git diff $BRANCH_POINT..$BRANCH_NAME)
+if [ -z "$DIFF" ]; then
+  echo "No changes detected. Exiting."
+  exit 0
+fi
+
+echo "$DIFF" > ~/Desktop/$BRANCH_NAME.patch
+echo "Patch saved to ~/Desktop/$BRANCH_NAME.patch"
+echo "To restore: git apply ~/Desktop/$BRANCH_NAME.patch"
