@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# Configuration for timing and intervals
+DELAY_AFTER_ANNOUNCEMENT=2
+MIN_PROMPT_WAIT=120
+MAX_PROMPT_WAIT=180
+SPEECH_SLOWDOWN=100
+
+# Seed the random number generator
+RANDOM=$(date +%s)
+
+# Generate random from range
+random_from_range() {
+    local min=$1
+    local max=$2
+    echo $((RANDOM % (max - min + 1) + min))
+}
+
+shuffle_numbers() {
+    local i tmp size max rand
+    size=${#numbers[@]}
+    max=$(( 32768 / size * size ))  # Avoid bias from `$RANDOM`
+    
+    for ((i = size - 1; i > 0; i--)); do
+        rand=$((RANDOM % (i + 1)))
+        tmp=${numbers[i]}
+        numbers[i]=${numbers[rand]}
+        numbers[rand]=$tmp
+    done
+}
+
+is_ascending_order() {
+    local arr=("$@")
+    for ((i = 0; i < ${#arr[@]} - 1; i++)); do
+        if ((arr[i] >= arr[i + 1])); then
+            return 1
+        fi
+    done
+    return 0
+}
+
+shuffle_until_not_ascending() {
+    while true; do
+        shuffle_numbers
+        if ! is_ascending_order "${numbers[@]:0:4}"; then
+            break  # Break the loop if not in ascending order
+        fi
+    done
+}
+
+shuffle_prompts() {
+    local i tmp size max rand
+    size=${#prompts[@]}
+    max=$(( 32768 / size * size ))  # Avoid bias from `$RANDOM`
+    
+    for ((i = size - 1; i > 0; i--)); do
+        rand=$((RANDOM % (i + 1)))
+        tmp=${prompts[i]}
+        prompts[i]=${prompts[rand]}
+        prompts[rand]=$tmp
+    done
+}
+
+random_wait() {
+    local min=$1
+    local max=$2
+    echo $((RANDOM % (max - min + 1) + min))
+}
+
+# Define the list of numbers and prompts
+numbers=(
+  "2"
+  "3"
+  "4"
+  "5"
+  "6"
+  "7"
+  "8"
+  "9"
+  "10"
+  "11"
+  "12"
+  "13"
+  "14"
+  "15"
+  "16"
+  "17"
+  "18"
+  "19"
+)
+
+prompts=(
+  "What were the numbers in the order they were given"
+  "What were the numbers in ascending order"
+  "What were the numbers in descending order"
+)
+
+while true; do
+    shuffle_until_not_ascending
+    selected_numbers=("${numbers[@]:0:4}")
+    shuffle_prompts
+    selected_prompts=("${prompts[@]:0:2}")
+
+    FIRST_PROMPT=${selected_prompts[0]}
+    SECOND_PROMPT=${selected_prompts[1]}
+
+    say -r $SPEECH_SLOWDOWN "Please remember these four numbers"
+    sleep $DELAY_AFTER_ANNOUNCEMENT
+    say -r $SPEECH_SLOWDOWN "${selected_numbers[@]}"
+    say "again"
+    say -r $SPEECH_SLOWDOWN "${selected_numbers[@]}"
+        
+    sleep $(random_wait $MIN_PROMPT_WAIT $MAX_PROMPT_WAIT)
+    say -r $SPEECH_SLOWDOWN "$FIRST_PROMPT"
+
+    sleep $(random_wait $MIN_PROMPT_WAIT $MAX_PROMPT_WAIT)
+    say -r $SPEECH_SLOWDOWN "$SECOND_PROMPT"
+
+    # Wait before showing the answer
+    sleep 30
+    echo "${selected_numbers[@]}"
+    sleep $(random_wait $MIN_PROMPT_WAIT $MAX_PROMPT_WAIT)
+done
