@@ -7,13 +7,16 @@
 
 # Check for flags
 grep_flags="-iR"
-while getopts "cl" opt; do
+while getopts "clv" opt; do
     case ${opt} in
         c ) # Case-sensitive search
             grep_flags="-R"
             ;;
         l ) # Output only file names
             grep_flags="${grep_flags}l"
+            ;;
+        v ) # Reverse (exclusion) search
+            grep_flags="-RL"
             ;;
         \? ) echo "Unrecognized flag: $OPTARG" 1>&2
             ;;
@@ -25,17 +28,17 @@ script_name=$(basename "$0")
 
 # At least two arguments must be provided: extension and phrase
 if [ $# -lt 2 ]; then
-    echo "Usage: $(basename "$0") [-cl] <file_extension> <search_pattern>"
+    echo "Usage: $(basename "$0") [-clv] <file_extension> <search_pattern>"
     echo "    Perform a recursive 'grep' search from the working directory."
     echo "    Restricts search to files matching your file extension."
     echo "    For example, \"$script_name json phrase\" searches JSON files."
     echo "    Use the -c flag to set case-sensitive search."
     echo "    Use the -l flag to output only file names."
+    echo "    Use the -v flag to exclude matches from the results."
     echo "    Phrases may include multiple words without quoting."
     echo "    Use single quotes with wildcard items to avoid expansion."
     exit 1
 fi
-
 
 # Construct and execute the 'grep' search
 file_extension=$1; shift
