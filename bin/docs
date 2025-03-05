@@ -103,12 +103,16 @@ case "$1" in
     "temp"|"temporal"|"t") 
         handle_url "https://github.com/temporalio" ;;
         
-    "pr"|"prs"|"docs")
+    "pr"|"prs"|"docs"|"p")
         if [[ "$2" =~ ^[0-9]{3,4}$ ]]; then
             handle_url "https://github.com/temporalio/documentation/pull/$2"
         else
             handle_url "https://github.com/temporalio/documentation/pulls"
         fi
+        ;;
+
+    "issues"|"issues"|"i")
+        handle_url "https://github.com/temporalio/documentation/issues"
         ;;
 
     "branches") 
